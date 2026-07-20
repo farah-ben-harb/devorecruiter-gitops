@@ -1,24 +1,38 @@
-# Argo CD Application for the DevoRecruiter BFF API in the dev environment.
+# This Argo CD Application tells Argo CD how to deploy the NestJS BFF in dev.
+# It connects this GitOps repository to the BFF Helm chart and dev values file.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
+  # Application name shown in the Argo CD UI.
   name: devorecruiter-api-bff-dev
+  # Argo CD Application resources live in the argocd namespace.
   namespace: argocd
 spec:
+  # The Argo CD project that controls permissions and deployment boundaries.
   project: default
 
+  # Source defines what Argo CD reads from Git.
   source:
+    # Git repository watched by Argo CD.
     repoURL: https://github.com/farah-ben-harb/devorecruiter-gitops.git
+    # Git branch Argo CD tracks.
     targetRevision: main
+    # Folder inside the repository that contains the BFF Helm chart.
     path: charts/api-bff
     helm:
+      # Environment-specific values applied on top of the chart defaults.
       valueFiles:
         - ../../environments/dev/api-bff-values.yaml
 
+  # Destination defines where Argo CD deploys the rendered manifests.
   destination:
+    # The in-cluster Kubernetes API endpoint, meaning the same cluster where Argo CD runs.
     server: https://kubernetes.default.svc
+    # Namespace where the BFF Kubernetes resources will be created.
     namespace: devorecruiter-dev
 
+  # Sync policy controls how Argo CD applies the desired state.
   syncPolicy:
     syncOptions:
+      # Let Argo CD create the target namespace if it does not already exist.
       - CreateNamespace=true
