@@ -1,0 +1,17 @@
+# Service provides a stable internal network endpoint for the frontend Pods.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "devorecruiter-frontend.fullname" . }}
+  labels:
+    {{- include "devorecruiter-frontend.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      protocol: TCP
+  # The Service sends traffic only to Pods with these selector labels.
+  selector:
+    {{- include "devorecruiter-frontend.selectorLabels" . | nindent 4 }}

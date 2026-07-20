@@ -1,9 +1,6 @@
-@'
 # DevoRecruiter GitOps
 
-This repository contains the desired Kubernetes deployment state for DevoRecruiter.
-
-It is intentionally separate from the source monorepo.
+This repository contains the desired Kubernetes deployment state for DevoRecruiter. It is intentionally separate from the application source monorepo so runtime configuration can be reviewed, promoted, and deployed independently from application code.
 
 ## Scope
 
@@ -26,11 +23,24 @@ This repository must not contain:
 - Terraform state
 - local runtime data
 
-## Current phase
+## Repository Layout
+
+```text
+argocd/
+  applications/
+  projects/
+charts/
+  api-back/
+  api-bff/
+  frontend/
+environments/
+  dev/
+```
+
+## Current Phase
 
 Phase 5 is repository and Helm basics only.
 
 No Kubernetes deployment is performed in this phase.
 No Azure resource is created in this phase.
 No Argo CD installation is performed in this phase.
-'@ | Set-Content -Path README.md -Encoding ascii

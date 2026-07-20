@@ -1,0 +1,50 @@
+# Deployment keeps the desired number of frontend Pods running.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "devorecruiter-frontend.fullname" . }}
+  labels:
+    {{- include "devorecruiter-frontend.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "devorecruiter-frontend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "devorecruiter-frontend.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      # imagePullSecrets lets Kubernetes authenticate to Docker Hub when needed.
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: frontend
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPort }}
+              protocol: TCP
+          # Load non-secret runtime values such as BFF_UPSTREAM from the ConfigMap.
+          envFrom:
+            - configMapRef:
+                name: {{ include "devorecruiter-frontend.fullname" . }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.health.livenessPath | quote }}
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.health.readinessPath | quote }}
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
