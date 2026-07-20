@@ -1,0 +1,17 @@
+# Helm chart API version. v2 is used by Helm 3 application charts.
+apiVersion: v2
+
+# Chart name. This becomes part of default Kubernetes resource names.
+name: devorecruiter-api-back
+
+# Human-readable purpose of this chart.
+description: Helm chart for the DevoRecruiter FastAPI RAG service
+
+# Application charts deploy runnable software.
+type: application
+
+# Chart package version. Increase this when chart templates or defaults change.
+version: 0.1.0
+
+# Application version. This matches the FastAPI Docker image tag built from the source commit.
+appVersion: "ad1afb5ceb27cfb6245d9defab37dbd27c5cad9f"

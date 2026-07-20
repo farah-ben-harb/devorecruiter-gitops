@@ -37,6 +37,25 @@ environments/
   dev/
 ```
 
+## Helm Charts
+
+The current Phase 5 charts are:
+
+- `charts/frontend`: Angular frontend served by nginx on port 80.
+- `charts/api-bff`: NestJS BFF API served on port 3000.
+- `charts/api-back`: FastAPI RAG service served on port 8000.
+
+Each chart renders a Deployment, Service, ConfigMap, and disabled-by-default Ingress. The FastAPI chart also includes an optional PersistentVolumeClaim for Chroma data.
+
+## Secret Handling
+
+Secrets are intentionally not stored in this repository. Charts reference externally-created Kubernetes Secrets such as:
+
+- `devorecruiter-api-bff-secrets`
+- `devorecruiter-api-back-secrets`
+
+Those Secrets should be created later through a secure process such as Sealed Secrets, External Secrets Operator, Azure Key Vault integration, or manual cluster bootstrap for local development.
+
 ## Current Phase
 
 Phase 5 is repository and Helm basics only.

@@ -1,0 +1,79 @@
+# Number of FastAPI Pods Kubernetes should keep running.
+replicaCount: 1
+
+# Container image published by the monorepo CI pipeline.
+image:
+  repository: benharbfarah/devorecruiter-api-back
+  tag: "ad1afb5ceb27cfb6245d9defab37dbd27c5cad9f"
+  pullPolicy: IfNotPresent
+
+# Secret used by Kubernetes to pull private Docker Hub images.
+# If the Docker Hub repository is public, this can be changed to an empty list.
+imagePullSecrets:
+  - name: dockerhub-registry
+
+# Optional name overrides used when a shorter or fixed Kubernetes resource name is required.
+nameOverride: ""
+fullnameOverride: ""
+
+# FastAPI container and Service networking.
+containerPort: 8000
+
+service:
+  type: ClusterIP
+  port: 8000
+  targetPort: http
+
+# Non-secret runtime configuration passed through a ConfigMap.
+env:
+  ALLOWED_ORIGINS: "http://devorecruiter.local,http://devorecruiter-frontend"
+  CHROMA_PERSIST_DIRECTORY: "/data/chroma"
+  EMBEDDING_MODEL: "BAAI/bge-small-en-v1.5"
+  GROQ_MODEL: "llama-3.3-70b-versatile"
+
+# Sensitive values are referenced from an existing Kubernetes Secret.
+# The chart does not create this Secret because secret values must not live in Git.
+secretEnv:
+  existingSecret: devorecruiter-api-back-secrets
+  required:
+    GROQ_API_KEY: groq-api-key
+  optional: {}
+
+# Health endpoints implemented by the FastAPI application.
+health:
+  livenessPath: /healthz
+  readinessPath: /readyz
+
+# Optional persistence for Chroma vector-store data.
+persistence:
+  enabled: false
+  mountPath: /data/chroma
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+  storageClassName: ""
+
+# Ingress is disabled because FastAPI is normally reached through the BFF.
+ingress:
+  enabled: false
+  className: traefik
+  annotations: {}
+  hosts:
+    - host: rag.devorecruiter.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# Pod-level security defaults can be tightened later per cluster policy.
+podSecurityContext: {}
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  runAsNonRoot: true
+
+# Resource requests and limits are intentionally empty until cluster sizing is defined.
+resources: {}

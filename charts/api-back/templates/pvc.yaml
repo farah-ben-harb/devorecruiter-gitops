@@ -1,0 +1,21 @@
+{{/*
+PersistentVolumeClaim is optional and is used only when persistence.enabled is true.
+It keeps the Chroma vector-store data across Pod restarts.
+*/}}
+{{- if .Values.persistence.enabled -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "devorecruiter-api-back.fullname" . }}-chroma
+  labels:
+    {{- include "devorecruiter-api-back.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .Values.persistence.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size }}
+  {{- if .Values.persistence.storageClassName }}
+  storageClassName: {{ .Values.persistence.storageClassName | quote }}
+  {{- end }}
+{{- end }}

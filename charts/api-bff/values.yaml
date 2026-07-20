@@ -1,0 +1,99 @@
+# Number of BFF Pods Kubernetes should keep running.
+replicaCount: 1
+
+# Container image published by the monorepo CI pipeline.
+image:
+  repository: benharbfarah/devorecruiter-api-bff
+  tag: "ad1afb5ceb27cfb6245d9defab37dbd27c5cad9f"
+  pullPolicy: IfNotPresent
+
+# Secret used by Kubernetes to pull private Docker Hub images.
+# If the Docker Hub repository is public, this can be changed to an empty list.
+imagePullSecrets:
+  - name: dockerhub-registry
+
+# Optional name overrides used when a shorter or fixed Kubernetes resource name is required.
+nameOverride: ""
+fullnameOverride: ""
+
+# BFF container and Service networking.
+containerPort: 3000
+
+service:
+  type: ClusterIP
+  port: 3000
+  targetPort: http
+
+# Non-secret runtime configuration passed through a ConfigMap.
+env:
+  NODE_ENV: "production"
+  PORT: "3000"
+  CORS_ORIGIN: "http://devorecruiter.local"
+  FRONTEND_URL: "http://devorecruiter.local"
+  APP_FRONTEND_URL: "http://devorecruiter.local"
+  AUTH_CALLBACK_INCLUDE_ACCESS_TOKEN_QUERY: "true"
+  AUTH_COOKIE_SAMESITE: "lax"
+  AUTH_COOKIE_SECURE: "false"
+  DATABASE_HOST: "postgres"
+  DATABASE_PORT: "5432"
+  DATABASE_USER: "devorecruiter"
+  DATABASE_NAME: "devorecruiter"
+  DATABASE_SYNCHRONIZE: "false"
+  GOOGLE_CLIENT_ID: "replace-with-google-client-id"
+  GOOGLE_CALLBACK_URL: "http://devorecruiter.local/auth/google/callback"
+  FASTAPI_BASE_URL: "http://devorecruiter-api-back:8000"
+  N8N_TIMEOUT_MS: "30000"
+  N8N_SCORING_CV_MIN_SCORE: "70"
+  N8N_SCORING_JOB_POST_MIN_SCORE: "70"
+  PUPPETEER_EXECUTABLE_PATH: "/usr/bin/chromium-browser"
+
+# Sensitive values are referenced from an existing Kubernetes Secret.
+# The chart does not create this Secret because secret values must not live in Git.
+secretEnv:
+  existingSecret: devorecruiter-api-bff-secrets
+  required:
+    DATABASE_PASSWORD: database-password
+    JWT_SECRET: jwt-secret
+    JWT_REFRESH_SECRET: jwt-refresh-secret
+    GOOGLE_CLIENT_SECRET: google-client-secret
+    N8N_WEBHOOK_URL: n8n-webhook-url
+  optional:
+    EMAIL_PASS: email-pass
+    GITHUB_TOKEN: github-token
+    GROQ_API_KEY: groq-api-key
+    N8N_SCORING_CV_WEBHOOK_URL: n8n-scoring-cv-webhook-url
+    N8N_SCORING_WEBHOOK_URL: n8n-scoring-webhook-url
+    N8N_WEBHOOK_CANDIDATE_CV_UNIFICATION: n8n-webhook-candidate-cv-unification
+    OPENAI_API_KEY: openai-api-key
+    OPENROUTER_API_KEY: openrouter-api-key
+    WEBHOOK_SECRET: webhook-secret
+
+# Health endpoints implemented by the NestJS BFF.
+health:
+  livenessPath: /healthz
+  readinessPath: /readyz
+
+# Ingress is disabled by default until a cluster ingress controller is selected.
+ingress:
+  enabled: false
+  className: traefik
+  annotations: {}
+  hosts:
+    - host: api.devorecruiter.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# Pod-level security defaults can be tightened later per cluster policy.
+podSecurityContext: {}
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  runAsNonRoot: true
+
+# Resource requests and limits are intentionally empty until cluster sizing is defined.
+resources: {}

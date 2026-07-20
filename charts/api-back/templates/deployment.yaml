@@ -1,0 +1,88 @@
+# Deployment keeps the desired number of FastAPI Pods running.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "devorecruiter-api-back.fullname" . }}
+  labels:
+    {{- include "devorecruiter-api-back.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "devorecruiter-api-back.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "devorecruiter-api-back.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.podSecurityContext }}
+      # podSecurityContext applies security settings to the whole Pod.
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      # imagePullSecrets lets Kubernetes authenticate to Docker Hub when needed.
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: api-back
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.securityContext }}
+          # securityContext applies container-level hardening.
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPort }}
+              protocol: TCP
+          # Load non-secret runtime values such as CHROMA_PERSIST_DIRECTORY from the ConfigMap.
+          envFrom:
+            - configMapRef:
+                name: {{ include "devorecruiter-api-back.fullname" . }}
+          # Load required and optional sensitive values from an external Secret.
+          env:
+            {{- range $name, $key := .Values.secretEnv.required }}
+            - name: {{ $name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secretEnv.existingSecret }}
+                  key: {{ $key }}
+            {{- end }}
+            {{- range $name, $key := .Values.secretEnv.optional }}
+            - name: {{ $name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secretEnv.existingSecret }}
+                  key: {{ $key }}
+                  optional: true
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.health.livenessPath | quote }}
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.health.readinessPath | quote }}
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: chroma-data
+              mountPath: {{ .Values.persistence.mountPath | quote }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: chroma-data
+          persistentVolumeClaim:
+            claimName: {{ include "devorecruiter-api-back.fullname" . }}-chroma
+      {{- end }}

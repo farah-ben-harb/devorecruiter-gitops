@@ -1,0 +1,12 @@
+# ConfigMap stores non-secret runtime settings for the BFF container.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "devorecruiter-api-bff.fullname" . }}
+  labels:
+    {{- include "devorecruiter-api-bff.labels" . | nindent 4 }}
+data:
+  # Render every key under values.yaml env as a container environment variable.
+  {{- range $key, $value := .Values.env }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
