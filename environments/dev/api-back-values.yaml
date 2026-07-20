@@ -1,0 +1,53 @@
+# Dev environment overrides for the FastAPI/RAG chart.
+
+# Keep one replica in dev because the service can use local Chroma data.
+replicaCount: 1
+
+# Pin the FastAPI image to the source commit built by CI.
+image:
+  repository: benharbfarah/devorecruiter-api-back
+  tag: "ad1afb5ceb27cfb6245d9defab37dbd27c5cad9f"
+  pullPolicy: IfNotPresent
+
+# Docker Hub pull secret expected to exist in the target namespace.
+imagePullSecrets:
+  - name: dockerhub-registry
+
+# Non-secret dev configuration. GROQ_API_KEY stays in a Kubernetes Secret.
+env:
+  ALLOWED_ORIGINS: "http://devorecruiter.local,http://devorecruiter-frontend"
+  CHROMA_PERSIST_DIRECTORY: "/data/chroma"
+  EMBEDDING_MODEL: "BAAI/bge-small-en-v1.5"
+  GROQ_MODEL: "llama-3.3-70b-versatile"
+
+# Secret name and key expected to exist in the dev namespace.
+secretEnv:
+  existingSecret: devorecruiter-api-back-secrets
+  required:
+    GROQ_API_KEY: groq-api-key
+  optional: {}
+
+# Persistence is disabled for the first dev GitOps pass.
+# Enable later if the dev cluster should preserve Chroma data across Pod restarts.
+persistence:
+  enabled: false
+  mountPath: /data/chroma
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+  storageClassName: ""
+
+# FastAPI remains internal in dev and is reached by the BFF through ClusterIP.
+ingress:
+  enabled: false
+  className: traefik
+  annotations: {}
+  hosts:
+    - host: rag.devorecruiter.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# Resource requests and limits remain unset until dev cluster capacity is known.
+resources: {}

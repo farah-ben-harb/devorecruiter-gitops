@@ -1,0 +1,33 @@
+# Dev environment overrides for the Angular/nginx frontend chart.
+
+# Keep one replica in dev to reduce local or small-cluster resource usage.
+replicaCount: 1
+
+# Pin the frontend image to the source commit built by CI.
+image:
+  repository: benharbfarah/devorecruiter-front
+  tag: "ad1afb5ceb27cfb6245d9defab37dbd27c5cad9f"
+  pullPolicy: IfNotPresent
+
+# Docker Hub pull secret expected to exist in the target namespace.
+imagePullSecrets:
+  - name: dockerhub-registry
+
+# The frontend nginx container proxies /api requests to the internal BFF Service.
+env:
+  BFF_UPSTREAM: "http://devorecruiter-api-bff:3000"
+
+# Expose only the frontend by default in dev.
+ingress:
+  enabled: true
+  className: traefik
+  annotations: {}
+  hosts:
+    - host: devorecruiter.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# Resource requests and limits remain unset until dev cluster capacity is known.
+resources: {}
