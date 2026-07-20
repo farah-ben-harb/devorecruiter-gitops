@@ -1,0 +1,24 @@
+# Argo CD Application for the DevoRecruiter FastAPI/RAG service in the dev environment.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: devorecruiter-api-back-dev
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/farah-ben-harb/devorecruiter-gitops.git
+    targetRevision: main
+    path: charts/api-back
+    helm:
+      valueFiles:
+        - ../../environments/dev/api-back-values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: devorecruiter-dev
+
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
