@@ -38,7 +38,7 @@ spec:
             - name: http
               containerPort: {{ .Values.containerPort }}
               protocol: TCP
-          # Load non-secret runtime values such as DB host, WEBHOOK_URL, and timezone.
+          # Load non-secret runtime values such as DB host, N8N_WEBHOOK_URL, and timezone.
           envFrom:
             - configMapRef:
                 name: {{ include "devorecruiter-n8n.fullname" . }}
@@ -65,14 +65,16 @@ spec:
                   optional: true
             {{- end }}
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: {{ .Values.health.path | quote }}
               port: http
             initialDelaySeconds: {{ .Values.health.initialDelaySeconds }}
             periodSeconds: {{ .Values.health.periodSeconds }}
             timeoutSeconds: {{ .Values.health.timeoutSeconds }}
             failureThreshold: {{ .Values.health.failureThreshold }}
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: {{ .Values.health.path | quote }}
               port: http
             initialDelaySeconds: {{ .Values.health.initialDelaySeconds }}
             periodSeconds: {{ .Values.health.periodSeconds }}

@@ -39,13 +39,12 @@ env:
   N8N_PORT: "5678"
   N8N_PROTOCOL: "http"
   N8N_EDITOR_BASE_URL: "http://n8n.devorecruiter.local"
-  WEBHOOK_URL: "http://n8n.devorecruiter.local/"
+  N8N_WEBHOOK_URL: "http://n8n.devorecruiter.local/"
   N8N_LOG_LEVEL: "info"
   N8N_SECURE_COOKIE: "false"
   N8N_DIAGNOSTICS_ENABLED: "false"
   N8N_PERSONALIZATION_ENABLED: "false"
   N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
-  N8N_RUNNERS_ENABLED: "true"
 
 # n8n application secrets. The chart references this Secret but never creates it.
 secretEnv:
@@ -116,8 +115,9 @@ resources:
     cpu: 750m
     memory: 768Mi
 
-# TCP probes avoid depending on n8n UI paths while still checking the process is reachable.
+# HTTP probes use n8n's lightweight health endpoint.
 health:
+  path: /healthz
   initialDelaySeconds: 30
   periodSeconds: 20
   timeoutSeconds: 5
