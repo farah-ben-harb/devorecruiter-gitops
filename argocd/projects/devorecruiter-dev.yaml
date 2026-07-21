@@ -26,6 +26,11 @@ spec:
     - server: https://kubernetes.default.svc
       namespace: devorecruiter-dev
 
+  # Applications may create their declared destination namespace during sync.
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+
   # Allow common namespaced Kubernetes resources needed by the Helm charts.
   namespaceResourceWhitelist:
     - group: ""
