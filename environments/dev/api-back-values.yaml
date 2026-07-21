@@ -27,7 +27,8 @@ secretEnv:
   existingSecret: devorecruiter-api-back-secrets
   required:
     GROQ_API_KEY: groq-api-key
-  optional: {}
+  optional:
+    HF_TOKEN: hf-token
 
 # Preserve Chroma data across Pod restarts on the single-node K3s volume.
 persistence:

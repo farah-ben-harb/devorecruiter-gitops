@@ -37,7 +37,8 @@ secretEnv:
   existingSecret: devorecruiter-api-back-secrets
   required:
     GROQ_API_KEY: groq-api-key
-  optional: {}
+  optional:
+    HF_TOKEN: hf-token
 
 # Health endpoints implemented by the FastAPI application.
 health:
