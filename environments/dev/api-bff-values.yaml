@@ -3,6 +3,9 @@
 # Keep one replica in dev because the app depends on shared services and secrets.
 replicaCount: 1
 
+# Keep the in-cluster DNS name stable because the frontend proxies to this Service.
+fullnameOverride: devorecruiter-api-bff
+
 # Pin the BFF image to the source commit built by CI.
 image:
   repository: benharbfarah/devorecruiter-api-bff

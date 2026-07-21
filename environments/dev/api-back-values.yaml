@@ -3,6 +3,9 @@
 # Keep one replica in dev because the service can use local Chroma data.
 replicaCount: 1
 
+# Keep the in-cluster DNS name stable because the BFF calls this Service.
+fullnameOverride: devorecruiter-api-back
+
 # Pin the FastAPI image to the source commit built by CI.
 image:
   repository: benharbfarah/devorecruiter-api-back
