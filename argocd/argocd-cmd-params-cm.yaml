@@ -14,3 +14,7 @@ data:
   # Without this, Argo CD serves HTTPS internally and browser login can break
   # when the public URL is plain HTTP.
   server.insecure: "true"
+  # Serve Argo CD under /argocd so it can share the existing devorecruiter.local
+  # hostname without requiring another Windows hosts-file entry.
+  server.rootpath: "/argocd"
+  server.basehref: "/argocd"

@@ -12,10 +12,20 @@ spec:
   # Traefik is the default ingress controller installed with K3s.
   ingressClassName: traefik
   rules:
+    - host: devorecruiter.local
+      http:
+        paths:
+          - path: /argocd
+            pathType: Prefix
+            backend:
+              service:
+                name: argocd-server
+                port:
+                  number: 80
     - host: argocd.devorecruiter.local
       http:
         paths:
-          - path: /
+          - path: /argocd
             pathType: Prefix
             backend:
               service:
