@@ -4,7 +4,7 @@ replicaCount: 1
 # Container image published by the monorepo CI pipeline.
 image:
   repository: benharbfarah/devorecruiter-api-bff
-  tag: "ad1afb5ceb27cfb6245d9defab37dbd27c5cad9f"
+  tag: "b8ad515917c34131239c5b3eac3cf6eb7f64b80c"
   pullPolicy: IfNotPresent
 
 # Secret used by Kubernetes to pull private Docker Hub images.
@@ -100,3 +100,17 @@ securityContext:
 
 # Resource requests and limits are intentionally empty until cluster sizing is defined.
 resources: {}
+
+# Optional database migration job.
+# Argo CD runs this as a PreSync hook before updating the BFF Deployment.
+migrations:
+  enabled: false
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 300
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi

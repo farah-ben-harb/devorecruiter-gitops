@@ -1,0 +1,82 @@
+{{- if .Values.migrations.enabled }}
+# Job runs database migrations before Argo CD applies the BFF Deployment update.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "devorecruiter-api-bff.fullname" . }}-migration
+  labels:
+    {{- include "devorecruiter-api-bff.labels" . | nindent 4 }}
+  annotations:
+    # PreSync makes Argo CD run this Job before syncing normal BFF resources.
+    argocd.argoproj.io/hook: PreSync
+    # Remove the previous hook before creating a new one, and clean up successful runs.
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+spec:
+  # A failed migration should stop the sync quickly instead of retrying for too long.
+  backoffLimit: {{ .Values.migrations.backoffLimit }}
+  # Keep completed Jobs briefly so their status is visible, then let Kubernetes clean them.
+  ttlSecondsAfterFinished: {{ .Values.migrations.ttlSecondsAfterFinished }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "devorecruiter-api-bff.name" . }}-migration
+        app.kubernetes.io/instance: {{ .Release.Name }}-migration
+        app.kubernetes.io/part-of: devorecruiter
+        app.kubernetes.io/component: api-bff-migration
+    spec:
+      # The migration does not need Kubernetes API credentials.
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      {{- with .Values.podSecurityContext }}
+      # podSecurityContext applies security settings to the whole migration Pod.
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      # imagePullSecrets lets Kubernetes authenticate to Docker Hub when needed.
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.securityContext }}
+          # securityContext applies container-level hardening.
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          # The production image removes npm, so run the TypeORM CLI with node directly.
+          command:
+            - node
+            - ./node_modules/typeorm/cli.js
+            - migration:run
+            - -d
+            - ./dist/src/data-source.js
+          # Render non-secret runtime values directly because PreSync runs before normal resources.
+          env:
+            {{- range $name, $value := .Values.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+            # Reuse the same required and optional sensitive values as the BFF Deployment.
+            {{- range $name, $key := .Values.secretEnv.required }}
+            - name: {{ $name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secretEnv.existingSecret }}
+                  key: {{ $key }}
+            {{- end }}
+            {{- range $name, $key := .Values.secretEnv.optional }}
+            - name: {{ $name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secretEnv.existingSecret }}
+                  key: {{ $key }}
+                  optional: true
+            {{- end }}
+          {{- with .Values.migrations.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}

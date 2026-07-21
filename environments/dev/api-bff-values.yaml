@@ -9,7 +9,7 @@ fullnameOverride: devorecruiter-api-bff
 # Pin the BFF image to the source commit built by CI.
 image:
   repository: benharbfarah/devorecruiter-api-bff
-  tag: "ad1afb5ceb27cfb6245d9defab37dbd27c5cad9f"
+  tag: "b8ad515917c34131239c5b3eac3cf6eb7f64b80c"
   pullPolicy: IfNotPresent
 
 # The Docker Hub repository is public, so no registry credentials are required.
@@ -78,3 +78,7 @@ resources:
   limits:
     cpu: 750m
     memory: 1Gi
+
+# Run TypeORM migrations before Argo CD updates the BFF Deployment.
+migrations:
+  enabled: true

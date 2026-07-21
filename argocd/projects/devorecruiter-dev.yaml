@@ -43,5 +43,7 @@ spec:
       kind: Deployment
     - group: "apps"
       kind: StatefulSet
+    - group: "batch"
+      kind: Job
     - group: "networking.k8s.io"
       kind: Ingress

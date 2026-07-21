@@ -11,7 +11,7 @@ description: Helm chart for the DevoRecruiter NestJS BFF API
 type: application
 
 # Chart package version. Increase this when chart templates or defaults change.
-version: 0.1.0
+version: 0.1.1
 
 # Application version. This matches the BFF Docker image tag built from the source commit.
-appVersion: "ad1afb5ceb27cfb6245d9defab37dbd27c5cad9f"
+appVersion: "b8ad515917c34131239c5b3eac3cf6eb7f64b80c"
