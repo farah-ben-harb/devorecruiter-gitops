@@ -9,9 +9,8 @@ image:
   tag: "ad1afb5ceb27cfb6245d9defab37dbd27c5cad9f"
   pullPolicy: IfNotPresent
 
-# Docker Hub pull secret expected to exist in the target namespace.
-imagePullSecrets:
-  - name: dockerhub-registry
+# The Docker Hub repository is public, so no registry credentials are required.
+imagePullSecrets: []
 
 # Non-secret dev configuration. Real secret values stay in Kubernetes Secrets.
 env:

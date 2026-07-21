@@ -6,12 +6,11 @@ replicaCount: 1
 # Pin the FastAPI image to the source commit built by CI.
 image:
   repository: benharbfarah/devorecruiter-api-back
-  tag: "ad1afb5ceb27cfb6245d9defab37dbd27c5cad9f"
+  tag: "d4f136e9ff1ddb07aabae4172fc376f7fcd57ca2"
   pullPolicy: IfNotPresent
 
-# Docker Hub pull secret expected to exist in the target namespace.
-imagePullSecrets:
-  - name: dockerhub-registry
+# The Docker Hub repository is public, so no registry credentials are required.
+imagePullSecrets: []
 
 # Non-secret dev configuration. GROQ_API_KEY stays in a Kubernetes Secret.
 env:
