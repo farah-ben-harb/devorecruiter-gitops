@@ -55,9 +55,18 @@ spec:
             - ./dist/src/data-source.js
           # Render non-secret runtime values directly because PreSync runs before normal resources.
           env:
+            {{- $secretNames := dict }}
+            {{- range $name, $_ := .Values.secretEnv.required }}
+            {{- $_ := set $secretNames $name true }}
+            {{- end }}
+            {{- range $name, $_ := .Values.secretEnv.optional }}
+            {{- $_ := set $secretNames $name true }}
+            {{- end }}
             {{- range $name, $value := .Values.env }}
+            {{- if not (hasKey $secretNames $name) }}
             - name: {{ $name }}
               value: {{ $value | quote }}
+            {{- end }}
             {{- end }}
             # Reuse the same required and optional sensitive values as the BFF Deployment.
             {{- range $name, $key := .Values.secretEnv.required }}

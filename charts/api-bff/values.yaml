@@ -39,7 +39,6 @@ env:
   DATABASE_USER: "devorecruiter"
   DATABASE_NAME: "devorecruiter"
   DATABASE_SYNCHRONIZE: "false"
-  GOOGLE_CLIENT_ID: "replace-with-google-client-id"
   GOOGLE_CALLBACK_URL: "http://devorecruiter.local/auth/google/callback"
   FASTAPI_BASE_URL: "http://devorecruiter-api-back:8000"
   N8N_TIMEOUT_MS: "30000"
@@ -55,15 +54,31 @@ secretEnv:
     DATABASE_PASSWORD: database-password
     JWT_SECRET: jwt-secret
     JWT_REFRESH_SECRET: jwt-refresh-secret
+    GOOGLE_CLIENT_ID: google-client-id
     GOOGLE_CLIENT_SECRET: google-client-secret
-    N8N_WEBHOOK_URL: n8n-webhook-url
-  optional:
-    EMAIL_PASS: email-pass
     GITHUB_TOKEN: github-token
     GROQ_API_KEY: groq-api-key
+    N8N_WEBHOOK_URL: n8n-webhook-url
+  optional:
+    DRIVE_FOLDER_CANDIDATES_CVS_BRUTS: drive-folder-candidates-cvs-bruts
+    DRIVE_FOLDER_CANDIDATES_CVS_UNIFIES: drive-folder-candidates-cvs-unifies
+    DRIVE_FOLDER_EVALUATIONS_ID: drive-folder-evaluations-id
+    DRIVE_FOLDER_JOB_POSTS_ID: drive-folder-job-posts-id
+    DRIVE_FOLDER_UNIFIED_ID: drive-folder-unified-id
+    EMAIL_PASS: email-pass
+    EMAIL_USER: email-user
+    GITHUB_USERNAME: github-username
+    GOOGLE_DRIVE_REFRESH_TOKEN: google-drive-refresh-token
+    GOOGLE_DRIVE_RESULT_FOLDER_ID: google-drive-result-folder-id
+    GOOGLE_GEMINI_API_KEY: google-gemini-api-key
+    GOOGLE_SERVICE_ACCOUNT_EMAIL: google-service-account-email
+    GOOGLE_SERVICE_ACCOUNT_KEY: google-service-account-key
+    GOOGLE_VISION_API_KEY: google-vision-api-key
+    N8N_BASE_URL: n8n-base-url
     N8N_SCORING_CV_WEBHOOK_URL: n8n-scoring-cv-webhook-url
     N8N_SCORING_WEBHOOK_URL: n8n-scoring-webhook-url
     N8N_WEBHOOK_CANDIDATE_CV_UNIFICATION: n8n-webhook-candidate-cv-unification
+    N8N_WEBHOOK_PREFIX: n8n-webhook-prefix
     OPENAI_API_KEY: openai-api-key
     OPENROUTER_API_KEY: openrouter-api-key
     WEBHOOK_SECRET: webhook-secret
