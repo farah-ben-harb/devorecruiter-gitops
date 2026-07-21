@@ -1,0 +1,36 @@
+# Argo CD AppProject for the DevoRecruiter dev environment.
+# The project limits what the dev applications are allowed to deploy and where.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  # Project name referenced by Argo CD Application spec.project.
+  name: devorecruiter-dev
+
+  # AppProject resources live in the argocd namespace.
+  namespace: argocd
+
+spec:
+  # Human-readable project purpose.
+  description: DevoRecruiter dev environment
+
+  # Only allow applications in this project to read from the GitOps repository.
+  sourceRepos:
+    - https://github.com/farah-ben-harb/devorecruiter-gitops.git
+
+  # Only allow deployment to the in-cluster Kubernetes API and dev namespace.
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: devorecruiter-dev
+
+  # Allow common namespaced Kubernetes resources needed by the Helm charts.
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: PersistentVolumeClaim
+    - group: "apps"
+      kind: Deployment
+    - group: "networking.k8s.io"
+      kind: Ingress

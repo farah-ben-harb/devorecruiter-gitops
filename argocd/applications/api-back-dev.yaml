@@ -8,8 +8,8 @@ metadata:
   # Argo CD Application resources live in the argocd namespace.
   namespace: argocd
 spec:
-  # The Argo CD project that controls permissions and deployment boundaries.
-  project: default
+  # Use the DevoRecruiter dev project instead of the broad default project.
+  project: devorecruiter-dev
 
   # Source defines what Argo CD reads from Git.
   source:
