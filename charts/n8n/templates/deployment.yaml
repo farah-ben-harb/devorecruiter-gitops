@@ -12,6 +12,9 @@ spec:
       {{- include "devorecruiter-n8n.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      annotations:
+        # Restart n8n Pods when non-secret ConfigMap values change.
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       labels:
         {{- include "devorecruiter-n8n.selectorLabels" . | nindent 8 }}
     spec:
