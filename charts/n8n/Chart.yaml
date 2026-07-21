@@ -1,0 +1,6 @@
+apiVersion: v2
+name: devorecruiter-n8n
+description: Helm chart for the DevoRecruiter n8n workflow automation service
+type: application
+version: 0.1.0
+appVersion: "stable"

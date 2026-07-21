@@ -1,0 +1,61 @@
+{{- if .Values.database.init.enabled }}
+# Job creates the dedicated n8n PostgreSQL database before the n8n Deployment starts.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "devorecruiter-n8n.fullname" . }}-db-init
+  labels:
+    {{- include "devorecruiter-n8n.labels" . | nindent 4 }}
+  annotations:
+    # PreSync makes Argo CD run this Job before syncing normal n8n resources.
+    argocd.argoproj.io/hook: PreSync
+    # Recreate the hook on every sync and clean up successful runs automatically.
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+spec:
+  backoffLimit: {{ .Values.database.init.backoffLimit }}
+  ttlSecondsAfterFinished: {{ .Values.database.init.ttlSecondsAfterFinished }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "devorecruiter-n8n.name" . }}-db-init
+        app.kubernetes.io/instance: {{ .Release.Name }}-db-init
+        app.kubernetes.io/part-of: devorecruiter
+        app.kubernetes.io/component: n8n-db-init
+    spec:
+      # The database-init Job does not need Kubernetes API credentials.
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      containers:
+        - name: db-init
+          image: {{ include "devorecruiter-n8n.dbInitImage" . | quote }}
+          imagePullPolicy: {{ .Values.database.init.image.pullPolicy }}
+          env:
+            - name: PGHOST
+              value: {{ .Values.database.host | quote }}
+            - name: PGPORT
+              value: {{ .Values.database.port | quote }}
+            - name: PGUSER
+              value: {{ .Values.database.user | quote }}
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.passwordSecret }}
+                  key: {{ .Values.database.passwordKey }}
+            - name: N8N_DB_NAME
+              value: {{ .Values.database.name | quote }}
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              until pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d postgres; do
+                echo "Waiting for PostgreSQL..."
+                sleep 2
+              done
+
+              if psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='${N8N_DB_NAME}'" | grep -q 1; then
+                echo "Database ${N8N_DB_NAME} already exists."
+              else
+                createdb -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$N8N_DB_NAME"
+                echo "Database ${N8N_DB_NAME} created."
+              fi
+{{- end }}

@@ -11,3 +11,4 @@ resources:
   - applications/frontend-dev.yaml
   - applications/api-bff-dev.yaml
   - applications/api-back-dev.yaml
+  - applications/n8n-dev.yaml

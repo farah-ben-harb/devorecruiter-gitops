@@ -1,0 +1,42 @@
+# This Application connects Argo CD to the development n8n Helm chart.
+# n8n provides the workflow/webhook engine used by the DevoRecruiter BFF.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    # Sync wave 1 runs after PostgreSQL and the application services exist.
+    argocd.argoproj.io/sync-wave: "1"
+
+  # Application name shown in the Argo CD UI.
+  name: devorecruiter-n8n-dev
+  # Argo CD Application resources live in the argocd namespace.
+  namespace: argocd
+spec:
+  # Use the restricted DevoRecruiter development project.
+  project: devorecruiter-dev
+
+  # Source defines what Argo CD reads from Git.
+  source:
+    # Git repository watched by Argo CD.
+    repoURL: https://github.com/farah-ben-harb/devorecruiter-gitops.git
+    # Git branch Argo CD tracks.
+    targetRevision: main
+    # Folder inside the repository that contains the n8n Helm chart.
+    path: charts/n8n
+    helm:
+      # Environment-specific values applied on top of the chart defaults.
+      valueFiles:
+        - ../../environments/dev/n8n-values.yaml
+
+  # Destination defines where Argo CD deploys the rendered manifests.
+  destination:
+    # The in-cluster Kubernetes API endpoint, meaning the same cluster where Argo CD runs.
+    server: https://kubernetes.default.svc
+    # Namespace where the n8n Kubernetes resources will be created.
+    namespace: devorecruiter-dev
+
+  # Sync policy controls how Argo CD applies the desired state.
+  syncPolicy:
+    syncOptions:
+      # Let Argo CD create the target namespace if it does not already exist.
+      - CreateNamespace=true

@@ -1,0 +1,17 @@
+# Service provides a stable internal network endpoint for the n8n Pod.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "devorecruiter-n8n.fullname" . }}
+  labels:
+    {{- include "devorecruiter-n8n.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      protocol: TCP
+  # The Service sends traffic only to Pods with these selector labels.
+  selector:
+    {{- include "devorecruiter-n8n.selectorLabels" . | nindent 4 }}

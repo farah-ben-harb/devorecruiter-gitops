@@ -1,0 +1,124 @@
+# Number of n8n Pods Kubernetes should keep running.
+# One replica is enough for the single-node Azure student VM.
+replicaCount: 1
+
+# Container image for n8n.
+# The digest pins the stable tag's OCI index for reproducible dev deployments.
+image:
+  repository: n8nio/n8n
+  tag: "stable"
+  digest: "sha256:15091606d98f6d15bad10cb26bb937ccb47dfd9fee2bb7ae44c7061cba2e7a04"
+  pullPolicy: IfNotPresent
+
+# Optional registry credentials. n8nio/n8n is public, so dev leaves this empty.
+imagePullSecrets: []
+
+# Optional name overrides used when a shorter or fixed Kubernetes resource name is required.
+nameOverride: ""
+fullnameOverride: ""
+
+# n8n listens on port 5678 inside the container.
+containerPort: 5678
+
+service:
+  type: ClusterIP
+  port: 5678
+  targetPort: http
+
+# Non-secret n8n runtime configuration.
+# Secret values such as N8N_ENCRYPTION_KEY are loaded from Kubernetes Secrets.
+env:
+  DB_TYPE: "postgresdb"
+  DB_POSTGRESDB_HOST: "postgres"
+  DB_POSTGRESDB_PORT: "5432"
+  DB_POSTGRESDB_DATABASE: "n8n"
+  DB_POSTGRESDB_USER: "devorecruiter"
+  GENERIC_TIMEZONE: "Africa/Tunis"
+  TZ: "Africa/Tunis"
+  N8N_HOST: "n8n.devorecruiter.local"
+  N8N_PORT: "5678"
+  N8N_PROTOCOL: "http"
+  N8N_EDITOR_BASE_URL: "http://n8n.devorecruiter.local"
+  WEBHOOK_URL: "http://n8n.devorecruiter.local/"
+  N8N_LOG_LEVEL: "info"
+  N8N_SECURE_COOKIE: "false"
+  N8N_DIAGNOSTICS_ENABLED: "false"
+  N8N_PERSONALIZATION_ENABLED: "false"
+  N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
+  N8N_RUNNERS_ENABLED: "true"
+
+# n8n application secrets. The chart references this Secret but never creates it.
+secretEnv:
+  existingSecret: devorecruiter-n8n-secrets
+  required:
+    N8N_ENCRYPTION_KEY: n8n-encryption-key
+  optional: {}
+
+# Database settings for n8n and for the idempotent database initialization Job.
+database:
+  host: postgres
+  port: 5432
+  name: n8n
+  user: devorecruiter
+  passwordSecret: devorecruiter-postgres-secrets
+  passwordKey: postgres-password
+  init:
+    enabled: true
+    image:
+      repository: cgr.dev/chainguard/postgres
+      tag: "latest"
+      digest: "sha256:833bd9897f70176303e5a9347bdfb4596272176523b3d205dbad93e4adb62227"
+      pullPolicy: IfNotPresent
+    backoffLimit: 3
+    ttlSecondsAfterFinished: 300
+
+# Persistent storage keeps n8n local files and config across Pod restarts.
+persistence:
+  enabled: true
+  mountPath: /home/node/.n8n
+  accessModes:
+    - ReadWriteOnce
+  size: 2Gi
+  storageClassName: local-path
+
+# Ingress exposes the n8n UI and webhooks through the cluster Traefik controller.
+ingress:
+  enabled: true
+  className: traefik
+  annotations: {}
+  hosts:
+    - host: n8n.devorecruiter.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# Match volume ownership to the node user used by the official n8n image.
+podSecurityContext:
+  fsGroup: 1000
+  fsGroupChangePolicy: OnRootMismatch
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+
+# Keep n8n within the capacity of the 4 GiB Azure student VM.
+resources:
+  requests:
+    cpu: 150m
+    memory: 256Mi
+  limits:
+    cpu: 750m
+    memory: 768Mi
+
+# TCP probes avoid depending on n8n UI paths while still checking the process is reachable.
+health:
+  initialDelaySeconds: 30
+  periodSeconds: 20
+  timeoutSeconds: 5
+  failureThreshold: 6

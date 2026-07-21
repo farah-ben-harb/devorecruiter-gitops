@@ -1,0 +1,20 @@
+{{/*
+PersistentVolumeClaim stores n8n local files and configuration across Pod restarts.
+*/}}
+{{- if .Values.persistence.enabled -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "devorecruiter-n8n.fullname" . }}-data
+  labels:
+    {{- include "devorecruiter-n8n.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .Values.persistence.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size }}
+  {{- if .Values.persistence.storageClassName }}
+  storageClassName: {{ .Values.persistence.storageClassName | quote }}
+  {{- end }}
+{{- end }}

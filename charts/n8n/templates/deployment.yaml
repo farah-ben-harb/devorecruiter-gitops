@@ -1,0 +1,91 @@
+# Deployment keeps the desired number of n8n Pods running.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "devorecruiter-n8n.fullname" . }}
+  labels:
+    {{- include "devorecruiter-n8n.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "devorecruiter-n8n.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "devorecruiter-n8n.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.podSecurityContext }}
+      # podSecurityContext applies volume ownership and Pod-level settings.
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      # imagePullSecrets lets Kubernetes authenticate to a registry when needed.
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: n8n
+          image: {{ include "devorecruiter-n8n.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.securityContext }}
+          # securityContext applies container-level hardening.
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPort }}
+              protocol: TCP
+          # Load non-secret runtime values such as DB host, WEBHOOK_URL, and timezone.
+          envFrom:
+            - configMapRef:
+                name: {{ include "devorecruiter-n8n.fullname" . }}
+          # Load database password and n8n encryption key from external Secrets.
+          env:
+            - name: DB_POSTGRESDB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.passwordSecret }}
+                  key: {{ .Values.database.passwordKey }}
+            {{- range $name, $key := .Values.secretEnv.required }}
+            - name: {{ $name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secretEnv.existingSecret }}
+                  key: {{ $key }}
+            {{- end }}
+            {{- range $name, $key := .Values.secretEnv.optional }}
+            - name: {{ $name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secretEnv.existingSecret }}
+                  key: {{ $key }}
+                  optional: true
+            {{- end }}
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: {{ .Values.health.initialDelaySeconds }}
+            periodSeconds: {{ .Values.health.periodSeconds }}
+            timeoutSeconds: {{ .Values.health.timeoutSeconds }}
+            failureThreshold: {{ .Values.health.failureThreshold }}
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: {{ .Values.health.initialDelaySeconds }}
+            periodSeconds: {{ .Values.health.periodSeconds }}
+            timeoutSeconds: {{ .Values.health.timeoutSeconds }}
+            failureThreshold: {{ .Values.health.failureThreshold }}
+          volumeMounts:
+            - name: n8n-data
+              mountPath: {{ .Values.persistence.mountPath | quote }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: n8n-data
+          persistentVolumeClaim:
+            claimName: {{ include "devorecruiter-n8n.fullname" . }}-data
