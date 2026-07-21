@@ -6,6 +6,8 @@ kind: Kustomization
 # These resources are installed into the argocd namespace by the bootstrap app.
 # The AppProject is listed first and also has sync wave -1 for safe ordering.
 resources:
+  - argocd-cmd-params-cm.yaml
+  - argocd-server-ingress.yaml
   - projects/devorecruiter-dev.yaml
   - applications/postgres-dev.yaml
   - applications/frontend-dev.yaml

@@ -1,0 +1,16 @@
+# Argo CD server command parameters for the development VM.
+# This ConfigMap already exists after Argo CD installation; GitOps now owns the
+# specific setting needed to serve Argo CD behind the Traefik HTTP ingress.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cmd-params-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-cmd-params-cm
+    app.kubernetes.io/part-of: argocd
+data:
+  # Use HTTP between Traefik and argocd-server for this local dev hostname.
+  # Without this, Argo CD serves HTTPS internally and browser login can break
+  # when the public URL is plain HTTP.
+  server.insecure: "true"
