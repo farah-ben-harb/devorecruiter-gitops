@@ -12,10 +12,11 @@ spec:
   # Traefik is the default ingress controller installed with K3s.
   ingressClassName: traefik
   rules:
-    - host: devorecruiter.local
-      http:
+    # Hostless rule lets the Argo CD UI open at the VM public IP.
+    # Host-specific app and n8n ingress rules continue to serve their own names.
+    - http:
         paths:
-          - path: /argocd
+          - path: /
             pathType: Prefix
             backend:
               service:
@@ -25,7 +26,7 @@ spec:
     - host: argocd.devorecruiter.local
       http:
         paths:
-          - path: /argocd
+          - path: /
             pathType: Prefix
             backend:
               service:
