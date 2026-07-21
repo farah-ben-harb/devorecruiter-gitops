@@ -94,6 +94,9 @@ securityContext:
     drop:
       - ALL
   runAsNonRoot: true
+  # The official Node image defines user "node" as this numeric UID/GID.
+  runAsUser: 1000
+  runAsGroup: 1000
 
 # Resource requests and limits are intentionally empty until cluster sizing is defined.
 resources: {}

@@ -42,6 +42,15 @@ securityContext:
   capabilities:
     drop:
       - ALL
+    # The entrypoint initializes volume ownership as root, then drops to postgres.
+    add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+  seccompProfile:
+    type: RuntimeDefault
 
 # Keep the database within the capacity of the small Azure student VM.
 resources:
