@@ -3,6 +3,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
+  annotations:
+    # Sync wave 0 runs after the AppProject bootstrap wave.
+    argocd.argoproj.io/sync-wave: "0"
+
   # Application name shown in the Argo CD UI.
   name: devorecruiter-api-back-dev
   # Argo CD Application resources live in the argocd namespace.

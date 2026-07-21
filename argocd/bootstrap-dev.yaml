@@ -1,0 +1,38 @@
+# Bootstrap Application for the DevoRecruiter dev GitOps configuration.
+# Apply this file after Argo CD is installed in the Kubernetes cluster.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  # This root application appears in the Argo CD UI and manages the child apps.
+  name: devorecruiter-dev-bootstrap
+
+  # The bootstrap Application itself must live in the argocd namespace.
+  namespace: argocd
+
+spec:
+  # Use the default project only for the bootstrap/root application.
+  # The child DevoRecruiter applications use the restricted devorecruiter-dev project.
+  project: default
+
+  # Source tells Argo CD where to find the Kustomize bundle for the child resources.
+  source:
+    # Private GitOps repository that Argo CD will watch after repo access is configured.
+    repoURL: https://github.com/farah-ben-harb/devorecruiter-gitops.git
+
+    # Branch to track.
+    targetRevision: main
+
+    # Folder containing kustomization.yaml, AppProject, and child Applications.
+    path: argocd
+
+  # Destination is the same cluster where Argo CD is running.
+  # The child resources are Argo CD CRDs, so they are created in the argocd namespace.
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  # No automated sync is enabled yet. We will start with manual sync for safety.
+  syncPolicy:
+    syncOptions:
+      # The argocd namespace is created by the Argo CD installation, not by this app.
+      - CreateNamespace=false

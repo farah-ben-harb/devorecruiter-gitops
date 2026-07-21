@@ -3,6 +3,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
+  annotations:
+    # Sync wave -1 makes Argo CD create the project before Applications use it.
+    argocd.argoproj.io/sync-wave: "-1"
+
   # Project name referenced by Argo CD Application spec.project.
   name: devorecruiter-dev
 

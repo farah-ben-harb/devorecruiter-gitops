@@ -1,0 +1,12 @@
+# Kustomize bundle used by the Argo CD bootstrap Application.
+# Argo CD reads this file when source.path is set to "argocd".
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# These resources are installed into the argocd namespace by the bootstrap app.
+# The AppProject is listed first and also has sync wave -1 for safe ordering.
+resources:
+  - projects/devorecruiter-dev.yaml
+  - applications/frontend-dev.yaml
+  - applications/api-bff-dev.yaml
+  - applications/api-back-dev.yaml
