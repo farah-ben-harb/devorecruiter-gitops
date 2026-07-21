@@ -7,6 +7,7 @@ kind: Kustomization
 # The AppProject is listed first and also has sync wave -1 for safe ordering.
 resources:
   - projects/devorecruiter-dev.yaml
+  - applications/postgres-dev.yaml
   - applications/frontend-dev.yaml
   - applications/api-bff-dev.yaml
   - applications/api-back-dev.yaml

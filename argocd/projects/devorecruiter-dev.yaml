@@ -41,5 +41,7 @@ spec:
       kind: PersistentVolumeClaim
     - group: "apps"
       kind: Deployment
+    - group: "apps"
+      kind: StatefulSet
     - group: "networking.k8s.io"
       kind: Ingress

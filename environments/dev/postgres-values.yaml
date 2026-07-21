@@ -1,0 +1,35 @@
+# Dev overrides for the single-node PostgreSQL dependency.
+
+# BFF already uses DATABASE_HOST=postgres, so preserve this Service DNS name.
+fullnameOverride: postgres
+
+# Pin the free Chainguard PostgreSQL 18 image to its reviewed multi-architecture manifest.
+image:
+  repository: cgr.dev/chainguard/postgres
+  tag: "latest"
+  digest: "sha256:833bd9897f70176303e5a9347bdfb4596272176523b3d205dbad93e4adb62227"
+  pullPolicy: IfNotPresent
+
+# Database identifiers are non-secret; the password remains in an external Secret.
+database:
+  name: devorecruiter
+  user: devorecruiter
+  existingSecret: devorecruiter-postgres-secrets
+  passwordKey: postgres-password
+
+# Use the K3s local-path provisioner on the Azure VM.
+persistence:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  size: 5Gi
+  storageClassName: local-path
+
+# Reserve enough memory for development while protecting the small VM.
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

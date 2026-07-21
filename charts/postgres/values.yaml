@@ -1,0 +1,53 @@
+# One PostgreSQL instance is appropriate for this single-node development cluster.
+replicaCount: 1
+
+# Use an immutable digest in environment values for reproducible deployments.
+image:
+  repository: cgr.dev/chainguard/postgres
+  tag: "latest"
+  digest: ""
+  pullPolicy: IfNotPresent
+
+# Optional overrides provide a stable Service name for DATABASE_HOST.
+nameOverride: ""
+fullnameOverride: ""
+
+# Non-secret database identifiers may be stored in Git.
+database:
+  name: devorecruiter
+  user: devorecruiter
+  existingSecret: devorecruiter-postgres-secrets
+  passwordKey: postgres-password
+
+# PostgreSQL is reachable only inside the Kubernetes cluster.
+service:
+  type: ClusterIP
+  port: 5432
+
+# K3s local-path storage preserves data across Pod restarts.
+persistence:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  size: 5Gi
+  storageClassName: local-path
+
+# The official Alpine image runs PostgreSQL as UID/GID 70.
+podSecurityContext:
+  fsGroup: 70
+  fsGroupChangePolicy: OnRootMismatch
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+# Keep the database within the capacity of the small Azure student VM.
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

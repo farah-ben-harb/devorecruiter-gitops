@@ -1,0 +1,7 @@
+# Helm chart metadata for the development PostgreSQL dependency.
+apiVersion: v2
+name: devorecruiter-postgres
+description: PostgreSQL chart for the DevoRecruiter development environment
+type: application
+version: 0.1.0
+appVersion: "18"

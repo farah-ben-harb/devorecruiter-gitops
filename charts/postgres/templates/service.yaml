@@ -1,0 +1,16 @@
+# ClusterIP gives the BFF a stable, cluster-internal PostgreSQL endpoint.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "devorecruiter-postgres.fullname" . }}
+  labels:
+    {{- include "devorecruiter-postgres.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: postgres
+      port: {{ .Values.service.port }}
+      targetPort: postgres
+      protocol: TCP
+  selector:
+    {{- include "devorecruiter-postgres.selectorLabels" . | nindent 4 }}

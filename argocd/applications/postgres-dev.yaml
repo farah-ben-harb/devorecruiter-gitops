@@ -1,0 +1,31 @@
+# This Application connects Argo CD to the development PostgreSQL Helm chart.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    # Create the database Application before application-service children.
+    argocd.argoproj.io/sync-wave: "-1"
+  name: devorecruiter-postgres-dev
+  namespace: argocd
+spec:
+  # Reuse the restricted DevoRecruiter development project.
+  project: devorecruiter-dev
+
+  # Render the in-repository chart with development-specific values.
+  source:
+    repoURL: https://github.com/farah-ben-harb/devorecruiter-gitops.git
+    targetRevision: main
+    path: charts/postgres
+    helm:
+      valueFiles:
+        - ../../environments/dev/postgres-values.yaml
+
+  # Deploy PostgreSQL into the same private namespace as the BFF.
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: devorecruiter-dev
+
+  # Namespace creation remains declarative and controlled by Argo CD.
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
