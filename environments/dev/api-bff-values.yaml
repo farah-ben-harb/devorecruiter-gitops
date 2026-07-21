@@ -70,5 +70,11 @@ ingress:
           pathType: Prefix
   tls: []
 
-# Resource requests and limits remain unset until dev cluster capacity is known.
-resources: {}
+# Bound Chromium and NestJS usage on the shared student VM.
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 750m
+    memory: 1Gi

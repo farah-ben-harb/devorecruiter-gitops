@@ -28,5 +28,11 @@ ingress:
           pathType: Prefix
   tls: []
 
-# Resource requests and limits remain unset until dev cluster capacity is known.
-resources: {}
+# Nginx serves static assets and needs only a small resource allocation.
+resources:
+  requests:
+    cpu: 25m
+    memory: 32Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi

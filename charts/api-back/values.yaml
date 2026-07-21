@@ -65,8 +65,10 @@ ingress:
           pathType: Prefix
   tls: []
 
-# Pod-level security defaults can be tightened later per cluster policy.
-podSecurityContext: {}
+# Match volume ownership to the non-root app user created by the image.
+podSecurityContext:
+  fsGroup: 1000
+  fsGroupChangePolicy: OnRootMismatch
 
 securityContext:
   allowPrivilegeEscalation: false
@@ -74,6 +76,8 @@ securityContext:
     drop:
       - ALL
   runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
 
 # Resource requests and limits are intentionally empty until cluster sizing is defined.
 resources: {}
