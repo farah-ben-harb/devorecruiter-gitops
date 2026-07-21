@@ -42,7 +42,16 @@ secretEnv:
   existingSecret: devorecruiter-n8n-secrets
   required:
     N8N_ENCRYPTION_KEY: n8n-encryption-key
-  optional: {}
+  optional:
+    OPENROUTER_API_KEY: openrouter-api-key
+    CONVERTAPI_SECRET: convertapi-secret
+    GOOGLE_DRIVE_FOLDER_URL: google-drive-folder-url
+    GOOGLE_GEMINI_API_KEY: google-gemini-api-key
+    GOOGLE_CLIENT_ID: google-client-id
+    GOOGLE_CLIENT_SECRET: google-client-secret
+    WEBHOOK_SECRET: webhook-secret
+    CV_ALERT_EMAIL: cv-alert-email
+    BACKEND_CV_UPDATE_WEBHOOK_URL: backend-cv-update-webhook-url
 
 # Reuse the existing Postgres password Secret and create the n8n DB idempotently.
 database:
