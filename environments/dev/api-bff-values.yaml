@@ -19,7 +19,7 @@ imagePullSecrets: []
 env:
   NODE_ENV: "production"
   PORT: "3000"
-  CORS_ORIGIN: "http://localhost:4200,http://devorecruiter.local"
+  CORS_ORIGIN: "http://localhost:4200"
   FRONTEND_URL: "http://localhost:4200"
   APP_FRONTEND_URL: "http://localhost:4200"
   AUTH_CALLBACK_INCLUDE_ACCESS_TOKEN_QUERY: "true"
