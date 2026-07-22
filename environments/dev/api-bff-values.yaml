@@ -30,7 +30,7 @@ env:
   DATABASE_USER: "devorecruiter"
   DATABASE_NAME: "devorecruiter"
   DATABASE_SYNCHRONIZE: "false"
-  GOOGLE_CALLBACK_URL: "http://localhost:3000/api/auth/google/callback"
+  GOOGLE_CALLBACK_URL: "http://localhost:3000/auth/google/callback"
   FASTAPI_BASE_URL: "http://devorecruiter-api-back:8000"
   N8N_TIMEOUT_MS: "30000"
   N8N_SCORING_CV_MIN_SCORE: "70"
