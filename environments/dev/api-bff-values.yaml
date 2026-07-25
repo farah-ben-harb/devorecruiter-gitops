@@ -95,6 +95,6 @@ resources:
     cpu: 750m
     memory: 1Gi
 
-# Run TypeORM migrations before Argo CD updates the BFF Deployment.
+# Keep migrations disabled until the BFF image ships a TypeORM data-source file.
 migrations:
-  enabled: true
+  enabled: false
