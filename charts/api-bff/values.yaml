@@ -44,6 +44,7 @@ env:
   N8N_TIMEOUT_MS: "30000"
   N8N_SCORING_CV_MIN_SCORE: "70"
   N8N_SCORING_JOB_POST_MIN_SCORE: "70"
+  GROQ_MODEL: "llama-3.3-70b-versatile"
   PUPPETEER_EXECUTABLE_PATH: "/usr/bin/chromium-browser"
 
 # Sensitive values are referenced from an existing Kubernetes Secret.

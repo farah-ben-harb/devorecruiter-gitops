@@ -9,7 +9,7 @@ fullnameOverride: devorecruiter-api-bff
 # Pin the BFF image to the source commit built by CI.
 image:
   repository: benharbfarah/devorecruiter-api-bff
-  tag: "b8ad515917c34131239c5b3eac3cf6eb7f64b80c"
+  tag: "bed43f5d5411539b7887903681559206ba8e98c6"
   pullPolicy: IfNotPresent
 
 # The Docker Hub repository is public, so no registry credentials are required.
@@ -35,6 +35,7 @@ env:
   N8N_TIMEOUT_MS: "30000"
   N8N_SCORING_CV_MIN_SCORE: "70"
   N8N_SCORING_JOB_POST_MIN_SCORE: "70"
+  GROQ_MODEL: "llama-3.3-70b-versatile"
   PUPPETEER_EXECUTABLE_PATH: "/usr/bin/chromium-browser"
 
 # Secret names and keys expected to exist in the dev namespace.
