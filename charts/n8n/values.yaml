@@ -49,7 +49,7 @@ env:
   N8N_RUNNERS_TASK_TIMEOUT: "60"
   N8N_COMPRESSION_NODE_MAX_DECOMPRESSED_SIZE_BYTES: "268435456"
   N8N_COMPRESSION_NODE_MAX_ZIP_ENTRIES: "1000"
-
+  N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
 # n8n application secrets. The chart references this Secret but never creates it.
 secretEnv:
   existingSecret: devorecruiter-n8n-secrets
