@@ -36,6 +36,8 @@ env:
   N8N_RUNNERS_TASK_TIMEOUT: "60"
   N8N_COMPRESSION_NODE_MAX_DECOMPRESSED_SIZE_BYTES: "268435456"
   N8N_COMPRESSION_NODE_MAX_ZIP_ENTRIES: "1000"
+  N8N_DEFAULT_BINARY_DATA_MODE: "filesystem"
+  NODE_OPTIONS: "--max-old-space-size=1024"
 
 # Secret name and key expected to exist in the dev namespace before Argo sync.
 secretEnv:
@@ -96,7 +98,7 @@ ingress:
 resources:
   requests:
     cpu: 150m
-    memory: 256Mi
+    memory: 384Mi
   limits:
     cpu: 750m
-    memory: 768Mi
+    memory: 1536Mi
