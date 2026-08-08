@@ -1,10 +1,23 @@
 # DevoRecruiter GitOps
 
-This repository contains the desired Kubernetes deployment state for DevoRecruiter. It is intentionally separate from the application source monorepo so runtime configuration can be reviewed, promoted, and deployed independently from application code.
+This repository defines the desired Kubernetes state for DevoRecruiter.
+
+It is intentionally separate from the application source monorepo so deployment changes can be reviewed, promoted, and rolled out independently from application code.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    App[DevoRecruiter Source Repo] --> Build[CI Pipeline]
+    Build --> Image[Container Image]
+    Image --> GitOps[This Repository]
+    GitOps --> ArgoCD[Argo CD]
+    ArgoCD --> Cluster[Kubernetes Cluster]
+```
 
 ## Scope
 
-This repository will contain:
+This repository should contain:
 
 - Helm charts
 - environment values
@@ -22,6 +35,32 @@ This repository must not contain:
 - kubeconfig files
 - Terraform state
 - local runtime data
+
+## Repository Layout
+
+- `charts/` reusable or application charts
+- `environments/` environment-specific values and overlays
+- `argocd/` Argo CD project and application definitions
+
+## Deployment Flow
+
+1. The application repository builds and tests the software.
+2. The image is published with an immutable tag.
+3. This repository is updated with the new tag or release reference.
+4. Argo CD reconciles the cluster state to match Git.
+
+## Branching and Commits
+
+- Use branches such as `feat/<area>`, `fix/<area>`, `docs/<area>`, or `gitops/<area>`
+- Keep commit messages short and descriptive
+- Prefer Conventional Commits such as `chore(gitops): update image reference`
+- Avoid mixing infrastructure policy changes with unrelated app changes
+
+## Contributing
+
+- Update only the deployment state you intend to change
+- Keep secrets outside Git
+- Document rollout risk when a manifest change may affect availability
 
 ## Repository Layout
 
