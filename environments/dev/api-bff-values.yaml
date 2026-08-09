@@ -9,7 +9,7 @@ fullnameOverride: devorecruiter-api-bff
 # Pin the BFF image to the source commit built by CI.
 image:
   repository: benharbfarah/devorecruiter-api-bff
-  tag: "bed43f5d5411539b7887903681559206ba8e98c6"
+  tag: "3cb054146a327d87e7c932dd05bd0fa405e838c2"
   pullPolicy: IfNotPresent
 
 # The Docker Hub repository is public, so no registry credentials are required.
