@@ -6,7 +6,7 @@ replicaCount: 1
 # Pin the frontend image to the source commit built by CI.
 image:
   repository: benharbfarah/devorecruiter-front
-  tag: "3cb054146a327d87e7c932dd05bd0fa405e838c2"
+  tag: "621222d92e8f37e8acda191084c271985c5d525e"
   pullPolicy: IfNotPresent
 
 # The Docker Hub repository is public, so no registry credentials are required.
