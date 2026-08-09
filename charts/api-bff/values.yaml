@@ -1,6 +1,9 @@
 # Number of BFF Pods Kubernetes should keep running.
 replicaCount: 1
 
+updateStrategy:
+  type: RollingUpdate
+
 # Container image published by the monorepo CI pipeline.
 image:
   repository: benharbfarah/devorecruiter-api-bff
@@ -88,6 +91,8 @@ secretEnv:
 health:
   livenessPath: /healthz
   readinessPath: /readyz
+  timeoutSeconds: 5
+  failureThreshold: 6
 
 # Ingress is disabled by default until a cluster ingress controller is selected.
 ingress:

@@ -3,6 +3,9 @@
 # Keep one replica in dev because the app depends on shared services and secrets.
 replicaCount: 1
 
+updateStrategy:
+  type: Recreate
+
 # Keep the in-cluster DNS name stable because the frontend proxies to this Service.
 fullnameOverride: devorecruiter-api-bff
 
@@ -37,6 +40,12 @@ env:
   N8N_SCORING_JOB_POST_MIN_SCORE: "70"
   GROQ_MODEL: "llama-3.3-70b-versatile"
   PUPPETEER_EXECUTABLE_PATH: "/usr/bin/chromium-browser"
+
+health:
+  livenessPath: /healthz
+  readinessPath: /readyz
+  timeoutSeconds: 5
+  failureThreshold: 6
 
 # Secret names and keys expected to exist in the dev namespace.
 secretEnv:

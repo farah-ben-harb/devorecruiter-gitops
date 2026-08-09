@@ -1,6 +1,9 @@
 # Number of FastAPI Pods Kubernetes should keep running.
 replicaCount: 1
 
+updateStrategy:
+  type: RollingUpdate
+
 # Container image published by the monorepo CI pipeline.
 image:
   repository: benharbfarah/devorecruiter-api-back
@@ -44,6 +47,8 @@ secretEnv:
 health:
   livenessPath: /healthz
   readinessPath: /readyz
+  timeoutSeconds: 5
+  failureThreshold: 6
 
 # Optional persistence for Chroma vector-store data.
 persistence:

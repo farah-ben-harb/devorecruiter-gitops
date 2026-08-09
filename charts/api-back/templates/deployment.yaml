@@ -7,6 +7,10 @@ metadata:
     {{- include "devorecruiter-api-back.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  {{- with .Values.updateStrategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "devorecruiter-api-back.selectorLabels" . | nindent 6 }}
@@ -65,12 +69,16 @@ spec:
               port: http
             initialDelaySeconds: 30
             periodSeconds: 20
+            timeoutSeconds: {{ .Values.health.timeoutSeconds | default 5 }}
+            failureThreshold: {{ .Values.health.failureThreshold | default 6 }}
           readinessProbe:
             httpGet:
               path: {{ .Values.health.readinessPath | quote }}
               port: http
             initialDelaySeconds: 15
             periodSeconds: 15
+            timeoutSeconds: {{ .Values.health.timeoutSeconds | default 5 }}
+            failureThreshold: {{ .Values.health.failureThreshold | default 6 }}
           {{- if .Values.persistence.enabled }}
           volumeMounts:
             - name: chroma-data

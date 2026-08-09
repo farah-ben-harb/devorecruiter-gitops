@@ -3,6 +3,12 @@
 # Keep one replica in dev to reduce local or small-cluster resource usage.
 replicaCount: 1
 
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 0
+    maxUnavailable: 1
+
 # Pin the frontend image to the source commit built by CI.
 image:
   repository: benharbfarah/devorecruiter-front
@@ -15,6 +21,12 @@ imagePullSecrets: []
 # The frontend nginx container proxies /api requests to the internal BFF Service.
 env:
   BFF_UPSTREAM: "http://devorecruiter-api-bff:3000"
+
+health:
+  livenessPath: /healthz
+  readinessPath: /readyz
+  timeoutSeconds: 5
+  failureThreshold: 6
 
 # Expose only the frontend by default in dev.
 ingress:

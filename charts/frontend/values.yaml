@@ -1,6 +1,9 @@
 # Number of frontend Pods Kubernetes should keep running.
 replicaCount: 1
 
+updateStrategy:
+  type: RollingUpdate
+
 # Container image published by the application CI pipeline.
 image:
   repository: benharbfarah/devorecruiter-front
@@ -32,6 +35,8 @@ env:
 health:
   livenessPath: /healthz
   readinessPath: /readyz
+  timeoutSeconds: 5
+  failureThreshold: 6
 
 # Ingress is disabled for Phase 5 because no Kubernetes deployment is performed yet.
 ingress:
