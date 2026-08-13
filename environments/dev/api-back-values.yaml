@@ -12,7 +12,7 @@ fullnameOverride: devorecruiter-api-back
 # Pin the FastAPI image to the source commit built by CI.
 image:
   repository: benharbfarah/devorecruiter-api-back
-  tag: "621222d92e8f37e8acda191084c271985c5d525e"
+  tag: "3516426f3e7271f65ef5290c38f327fc98df7d03"
   pullPolicy: IfNotPresent
 
 # The Docker Hub repository is public, so no registry credentials are required.
