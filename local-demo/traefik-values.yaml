@@ -1,0 +1,28 @@
+deployment:
+  kind: DaemonSet
+
+service:
+  type: NodePort
+
+ports:
+  web:
+    port: 8000
+    exposedPort: 80
+    nodePort: 30080
+  websecure:
+    port: 8443
+    exposedPort: 443
+    nodePort: 30443
+
+providers:
+  kubernetesIngress:
+    enabled: true
+    publishedService:
+      enabled: false
+    ingressEndpoint:
+      ip: 127.0.0.1
+
+ingressClass:
+  enabled: true
+  isDefaultClass: true
+  name: traefik

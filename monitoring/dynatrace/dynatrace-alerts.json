@@ -1,0 +1,237 @@
+[
+  {
+    "schemaId": "builtin:anomaly-detection.kubernetes.workload",
+    "scope": "environment",
+    "value": {
+      "containerRestarts": {
+        "enabled": true,
+        "configuration": {
+          "threshold": 3,
+          "samplePeriodInMinutes": 5,
+          "observationPeriodInMinutes": 10
+        }
+      },
+      "deploymentStuck": {
+        "enabled": true,
+        "configuration": {
+          "samplePeriodInMinutes": 10,
+          "observationPeriodInMinutes": 15
+        }
+      },
+      "pendingPods": {
+        "enabled": true,
+        "configuration": {
+          "threshold": 1,
+          "samplePeriodInMinutes": 5,
+          "observationPeriodInMinutes": 10
+        }
+      },
+      "podStuckInTerminating": {
+        "enabled": true,
+        "configuration": {
+          "samplePeriodInMinutes": 10,
+          "observationPeriodInMinutes": 15
+        }
+      },
+      "workloadWithoutReadyPods": {
+        "enabled": true,
+        "configuration": {
+          "samplePeriodInMinutes": 5,
+          "observationPeriodInMinutes": 10
+        }
+      },
+      "notAllPodsReady": {
+        "enabled": true,
+        "configuration": {
+          "samplePeriodInMinutes": 5,
+          "observationPeriodInMinutes": 10
+        }
+      },
+      "highMemoryUsage": {
+        "enabled": true,
+        "configuration": {
+          "threshold": 80,
+          "samplePeriodInMinutes": 5,
+          "observationPeriodInMinutes": 10
+        }
+      },
+      "highCpuUsage": {
+        "enabled": true,
+        "configuration": {
+          "threshold": 80,
+          "samplePeriodInMinutes": 5,
+          "observationPeriodInMinutes": 10
+        }
+      },
+      "highCpuThrottling": {
+        "enabled": true,
+        "configuration": {
+          "threshold": 20,
+          "samplePeriodInMinutes": 5,
+          "observationPeriodInMinutes": 10
+        }
+      },
+      "oomKills": {
+        "enabled": true,
+        "configuration": {
+          "samplePeriodInMinutes": 1,
+          "observationPeriodInMinutes": 10
+        }
+      },
+      "jobFailureEvents": {
+        "enabled": true,
+        "configuration": {
+          "samplePeriodInMinutes": 1,
+          "observationPeriodInMinutes": 10
+        }
+      },
+      "podBackoffEvents": {
+        "enabled": true,
+        "configuration": {
+          "samplePeriodInMinutes": 1,
+          "observationPeriodInMinutes": 10
+        }
+      },
+      "podEvictionEvents": {
+        "enabled": true,
+        "configuration": {
+          "samplePeriodInMinutes": 1,
+          "observationPeriodInMinutes": 10
+        }
+      },
+      "podPreemptionEvents": {
+        "enabled": true,
+        "configuration": {
+          "samplePeriodInMinutes": 1,
+          "observationPeriodInMinutes": 10
+        }
+      }
+    }
+  },
+  {
+    "schemaId": "builtin:davis.anomaly-detectors",
+    "scope": "environment",
+    "value": {
+      "enabled": true,
+      "title": "DevoRecruiter service failure count",
+      "description": "Alert when request failures increase for the DevoRecruiter services.",
+      "source": "DevoRecruiter GitOps",
+      "executionSettings": {
+        "actor": null,
+        "queryOffset": null
+      },
+      "analyzer": {
+        "name": "dt.statistics.ui.anomaly_detection.StaticThresholdAnomalyDetectionAnalyzer",
+        "input": [
+          {
+            "key": "query",
+            "value": "timeseries failures = sum(dt.service.request.failure_count), filter: {k8s.namespace.name == \"devorecruiter-dev\"}, by: {service.name}, interval: 1m"
+          },
+          {
+            "key": "threshold",
+            "value": "5"
+          },
+          {
+            "key": "alertCondition",
+            "value": "ABOVE"
+          },
+          {
+            "key": "alertOnMissingData",
+            "value": "false"
+          },
+          {
+            "key": "violatingSamples",
+            "value": "3"
+          },
+          {
+            "key": "slidingWindow",
+            "value": "5"
+          },
+          {
+            "key": "dealertingSamples",
+            "value": "5"
+          }
+        ]
+      },
+      "eventTemplate": {
+        "properties": [
+          {
+            "key": "event.name",
+            "value": "DevoRecruiter service failure count"
+          },
+          {
+            "key": "event.description",
+            "value": "The number of failed service requests is above the configured threshold."
+          },
+          {
+            "key": "event.type",
+            "value": "PERFORMANCE_EVENT"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "schemaId": "builtin:davis.anomaly-detectors",
+    "scope": "environment",
+    "value": {
+      "enabled": true,
+      "title": "DevoRecruiter service response time",
+      "description": "Alert when p95 response time slows down for the DevoRecruiter services.",
+      "source": "DevoRecruiter GitOps",
+      "executionSettings": {
+        "actor": null,
+        "queryOffset": null
+      },
+      "analyzer": {
+        "name": "dt.statistics.ui.anomaly_detection.StaticThresholdAnomalyDetectionAnalyzer",
+        "input": [
+          {
+            "key": "query",
+            "value": "timeseries p95_response_time = percentile(dt.service.request.response_time, 95), filter: {k8s.namespace.name == \"devorecruiter-dev\"}, by: {service.name}, interval: 1m"
+          },
+          {
+            "key": "threshold",
+            "value": "2000"
+          },
+          {
+            "key": "alertCondition",
+            "value": "ABOVE"
+          },
+          {
+            "key": "alertOnMissingData",
+            "value": "false"
+          },
+          {
+            "key": "violatingSamples",
+            "value": "3"
+          },
+          {
+            "key": "slidingWindow",
+            "value": "5"
+          },
+          {
+            "key": "dealertingSamples",
+            "value": "5"
+          }
+        ]
+      },
+      "eventTemplate": {
+        "properties": [
+          {
+            "key": "event.name",
+            "value": "DevoRecruiter service response time"
+          },
+          {
+            "key": "event.description",
+            "value": "The p95 service response time is above the configured threshold."
+          },
+          {
+            "key": "event.type",
+            "value": "PERFORMANCE_EVENT"
+          }
+        ]
+      }
+    }
+  }
+]
