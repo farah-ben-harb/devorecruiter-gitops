@@ -1,6 +1,7 @@
 # DevoRecruiter GitOps
 
-This repository defines the desired Kubernetes state for DevoRecruiter.
+This repository defines the desired Kubernetes state for DevoRecruiter and
+contains local tooling for controlled infrastructure operations.
 
 It is intentionally separate from the application source monorepo so deployment changes can be reviewed, promoted, and rolled out independently from application code.
 
@@ -24,6 +25,7 @@ This repository should contain:
 - Argo CD project definitions
 - Argo CD application definitions
 - exact Docker image SHA references
+- the local MCP infrastructure server and operational documentation
 
 This repository must not contain:
 
@@ -41,6 +43,10 @@ This repository must not contain:
 - `charts/` reusable or application charts
 - `environments/` environment-specific values and overlays
 - `argocd/` Argo CD project and application definitions
+- `tools/mcp-infra/` TypeScript MCP server for GitOps, K3s, Argo CD, Terraform, and Dynatrace
+- `monitoring/dynatrace/` monitoring configuration examples
+- `local-demo/` local cluster demonstration assets
+- `docs/final-report/` implementation and validation records
 
 ## Deployment Flow
 
@@ -62,29 +68,18 @@ This repository must not contain:
 - Keep secrets outside Git
 - Document rollout risk when a manifest change may affect availability
 
-## Repository Layout
-
-```text
-argocd/
-  applications/
-  projects/
-charts/
-  api-back/
-  api-bff/
-  frontend/
-environments/
-  dev/
-```
-
 ## Helm Charts
 
-The current Phase 5 charts are:
+The development charts are:
 
 - `charts/frontend`: Angular frontend served by nginx on port 80.
 - `charts/api-bff`: NestJS BFF API served on port 3000.
 - `charts/api-back`: FastAPI RAG service served on port 8000.
+- `charts/n8n`: workflow automation service.
+- `charts/postgres`: PostgreSQL database.
 
-Each chart renders a Deployment, Service, ConfigMap, and disabled-by-default Ingress. The FastAPI chart also includes an optional PersistentVolumeClaim for Chroma data.
+The development values enable ingress for the frontend and n8n and local-path
+persistent volumes for stateful services on the single-node K3s host.
 
 ## Secret Handling
 
@@ -93,12 +88,21 @@ Secrets are intentionally not stored in this repository. Charts reference extern
 - `devorecruiter-api-bff-secrets`
 - `devorecruiter-api-back-secrets`
 
-Those Secrets should be created later through a secure process such as Sealed Secrets, External Secrets Operator, Azure Key Vault integration, or manual cluster bootstrap for local development.
+Create these Secrets outside Git before syncing the applications. The repository
+contains names and keys only, never secret values.
 
-## Current Phase
+## MCP infrastructure server
 
-Phase 5 is repository and Helm basics only.
+[`tools/mcp-infra/README.md`](tools/mcp-infra/README.md) documents the 45 tools,
+resources, prompts, safety gates, and local STDIO setup. The server is read-only
+by default; changes require explicit configuration and confirmation.
 
-No Kubernetes deployment is performed in this phase.
-No Azure resource is created in this phase.
-No Argo CD installation is performed in this phase.
+From `tools/mcp-infra/`, run `npm ci`, `npm run typecheck`, `npm run build`, and
+`npm test` to validate the server locally. The live validation scripts require
+access to a configured cluster or Azure VM and are separate from the unit tests.
+
+The [final report](docs/final-report/09-testing-and-evidence.md) records
+historical infrastructure and cluster checks. It does not establish current
+cloud availability. Azure resource definitions live in the source monorepo's
+`infrastructure/terraform/` directory; this GitOps repository does not apply
+Terraform automatically.

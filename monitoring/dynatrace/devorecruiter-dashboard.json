@@ -1,0 +1,170 @@
+{
+  "version": 21,
+  "variables": [
+    {
+      "version": 2,
+      "key": "Namespace",
+      "type": "text",
+      "visible": true,
+      "editable": true,
+      "defaultValue": "devorecruiter-dev"
+    },
+    {
+      "version": 2,
+      "key": "WorkloadSearch",
+      "type": "text",
+      "visible": true,
+      "editable": true,
+      "defaultValue": "devorecruiter"
+    }
+  ],
+  "tiles": {
+    "1": {
+      "type": "markdown",
+      "content": "# DevoRecruiter Observability\n\nSingle-pane view for Kubernetes health, application service health, logs, events, and active problems.\n\n**Scope:** namespace `$Namespace`, workload search `$WorkloadSearch`.\n\nUse this dashboard to answer three questions fast:\n- Is the cluster healthy?\n- Are the workloads saturated or restarting?\n- Are the frontend, BFF, and FastAPI services still serving traffic?"
+    },
+    "2": {
+      "type": "data",
+      "title": "Logs",
+      "query": "fetch logs\n| filter dt.system.bucket == \"default_logs\"\n| filter k8s.namespace.name == $Namespace\n| filter k8s.workload.name ~ $WorkloadSearch or content ~ $WorkloadSearch\n| summarize logs = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {},
+      "querySettings": {}
+    },
+    "3": {
+      "type": "data",
+      "title": "Error Logs",
+      "query": "fetch logs\n| filter dt.system.bucket == \"default_logs\"\n| filter k8s.namespace.name == $Namespace\n| filter k8s.workload.name ~ $WorkloadSearch or content ~ $WorkloadSearch\n| filter loglevel == \"ERROR\" or content ~ \"error\" or content ~ \"exception\"\n| summarize errors = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {},
+      "querySettings": {}
+    },
+    "4": {
+      "type": "data",
+      "title": "Warning Logs",
+      "query": "fetch logs\n| filter dt.system.bucket == \"default_logs\"\n| filter k8s.namespace.name == $Namespace\n| filter k8s.workload.name ~ $WorkloadSearch or content ~ $WorkloadSearch\n| filter loglevel == \"WARN\" or content ~ \"warn\"\n| summarize warnings = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {},
+      "querySettings": {}
+    },
+    "5": {
+      "type": "data",
+      "title": "Active Problems",
+      "query": "fetch events\n| filter event.kind == \"DAVIS_PROBLEM\"\n| summarize problems = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {},
+      "querySettings": {}
+    },
+    "6": {
+      "type": "data",
+      "title": "Workload CPU Usage",
+      "query": "timeseries cpu_usage = sum(dt.kubernetes.container.cpu_usage, rollup: avg), filter: {k8s.namespace.name == $Namespace and k8s.workload.name ~ $WorkloadSearch}, by: {k8s.workload.name}",
+      "visualization": "lineChart",
+      "visualizationSettings": {},
+      "querySettings": {}
+    },
+    "7": {
+      "type": "data",
+      "title": "Workload Memory Working Set",
+      "query": "timeseries memory_working_set = sum(dt.kubernetes.container.memory_working_set, rollup: avg), filter: {k8s.namespace.name == $Namespace and k8s.workload.name ~ $WorkloadSearch}, by: {k8s.workload.name}",
+      "visualization": "lineChart",
+      "visualizationSettings": {},
+      "querySettings": {}
+    },
+    "8": {
+      "type": "data",
+      "title": "CPU Throttling",
+      "query": "timeseries cpu_throttled = sum(dt.kubernetes.container.cpu_throttled, rollup: avg), filter: {k8s.namespace.name == $Namespace and k8s.workload.name ~ $WorkloadSearch}, by: {k8s.workload.name}",
+      "visualization": "lineChart",
+      "visualizationSettings": {},
+      "querySettings": {}
+    },
+    "9": {
+      "type": "data",
+      "title": "Desired Pods",
+      "query": "timeseries pods_desired = max(dt.kubernetes.workload.pods_desired), filter: {k8s.namespace.name == $Namespace and k8s.workload.name ~ $WorkloadSearch}, by: {k8s.workload.name}",
+      "visualization": "lineChart",
+      "visualizationSettings": {},
+      "querySettings": {}
+    },
+    "10": {
+      "type": "data",
+      "title": "Request Volume by Service",
+      "query": "timeseries requests = sum(dt.service.request.count), filter: {k8s.namespace.name == $Namespace}, by: {service.name}",
+      "visualization": "lineChart",
+      "visualizationSettings": {},
+      "querySettings": {}
+    },
+    "11": {
+      "type": "data",
+      "title": "Failure Count by Service",
+      "query": "timeseries failures = sum(dt.service.request.failure_count), filter: {k8s.namespace.name == $Namespace}, by: {service.name}",
+      "visualization": "lineChart",
+      "visualizationSettings": {},
+      "querySettings": {}
+    },
+    "12": {
+      "type": "data",
+      "title": "P95 Response Time by Service",
+      "query": "timeseries p95_response_time = percentile(dt.service.request.response_time, 95), filter: {k8s.namespace.name == $Namespace}, by: {service.name}",
+      "visualization": "lineChart",
+      "visualizationSettings": {},
+      "querySettings": {}
+    },
+    "13": {
+      "type": "data",
+      "title": "Error Hotspots by Workload",
+      "query": "fetch logs\n| filter dt.system.bucket == \"default_logs\"\n| filter k8s.namespace.name == $Namespace\n| filter k8s.workload.name ~ $WorkloadSearch\n| filter loglevel == \"ERROR\" or content ~ \"error\" or content ~ \"exception\"\n| summarize errors = count(), by: {k8s.workload.name}\n| sort errors desc",
+      "visualization": "categoricalBarChart",
+      "visualizationSettings": {},
+      "querySettings": {}
+    },
+    "14": {
+      "type": "data",
+      "title": "Recent Kubernetes Events",
+      "query": "fetch events\n| filter k8s.namespace.name == $Namespace or contains(toString(content), $WorkloadSearch)\n| fields timestamp, event.kind, event.type, event.name, k8s.namespace.name, k8s.workload.name, k8s.pod.name, content\n| sort timestamp desc\n| limit 50",
+      "visualization": "table",
+      "visualizationSettings": {},
+      "querySettings": {}
+    },
+    "15": {
+      "type": "data",
+      "title": "Recent Error Logs",
+      "query": "fetch logs\n| filter dt.system.bucket == \"default_logs\"\n| filter k8s.namespace.name == $Namespace\n| filter k8s.workload.name ~ $WorkloadSearch or content ~ $WorkloadSearch\n| filter loglevel == \"ERROR\" or content ~ \"error\" or content ~ \"exception\"\n| fields timestamp, loglevel, k8s.namespace.name, k8s.workload.name, k8s.pod.name, k8s.container.name, content\n| sort timestamp desc\n| limit 80",
+      "visualization": "table",
+      "visualizationSettings": {},
+      "querySettings": {}
+    },
+    "16": {
+      "type": "markdown",
+      "content": "## Reading the signals\n\n- Rising CPU or memory on a workload usually means the Kubernetes limits are too low or the workload is under-provisioned.\n- CPU throttling is a strong sign that the container has hit its CPU limit.\n- A growing gap between request volume and failures usually points to a broken dependency, a bad deployment, or a downstream outage.\n- Recent events and error logs are the fastest way to move from symptom to root cause.\n- The alert plan below keeps the project focused on Kubernetes saturation, application failures, and missing data."
+    }
+  },
+  "layouts": {
+    "1": { "x": 0, "y": 0, "w": 24, "h": 4 },
+    "2": { "x": 0, "y": 4, "w": 6, "h": 4 },
+    "3": { "x": 6, "y": 4, "w": 6, "h": 4 },
+    "4": { "x": 12, "y": 4, "w": 6, "h": 4 },
+    "5": { "x": 18, "y": 4, "w": 6, "h": 4 },
+    "6": { "x": 0, "y": 8, "w": 8, "h": 7 },
+    "7": { "x": 8, "y": 8, "w": 8, "h": 7 },
+    "8": { "x": 16, "y": 8, "w": 8, "h": 7 },
+    "9": { "x": 0, "y": 15, "w": 8, "h": 6 },
+    "10": { "x": 8, "y": 15, "w": 8, "h": 6 },
+    "11": { "x": 16, "y": 15, "w": 8, "h": 6 },
+    "12": { "x": 0, "y": 21, "w": 12, "h": 6 },
+    "13": { "x": 12, "y": 21, "w": 12, "h": 6 },
+    "14": { "x": 0, "y": 27, "w": 12, "h": 8 },
+    "15": { "x": 12, "y": 27, "w": 12, "h": 8 },
+    "16": { "x": 0, "y": 35, "w": 24, "h": 5 }
+  },
+  "settings": {
+    "defaultTimeframe": {
+      "value": {
+        "from": "now()-6h",
+        "to": "now()"
+      },
+      "enabled": true
+    }
+  }
+}

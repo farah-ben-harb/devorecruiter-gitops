@@ -1,0 +1,34 @@
+{
+  "name": "devorecruiter-mcp-infra",
+  "version": "0.4.0",
+  "private": true,
+  "description": "Local MCP server for DevoRecruiter GitOps, K3s, Argo CD, and platform operations.",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "dev": "tsx src/index.ts",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "validate:live": "tsx scripts/validate-live-readonly.ts",
+    "validate:dynatrace": "tsx scripts/validate-dynatrace-readonly.ts",
+    "install:dynatrace-operator": "tsx scripts/install-dynatrace-operator.ts",
+    "push:dynatrace-alerts": "tsx scripts/push-dynatrace-alerts.ts"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "ssh2": "^1.17.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "@types/ssh2": "^1.15.5",
+    "tsx": "^4.23.1",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.12"
+  }
+}
