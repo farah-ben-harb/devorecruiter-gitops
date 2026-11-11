@@ -13,6 +13,7 @@ fullnameOverride: devorecruiter-api-back
 image:
   repository: benharbfarah/devorecruiter-api-back
   tag: "88af786531e0e32ee7ea70ad3ceb9a5a6ca18c58"
+  digest: "sha256:7a4f5d961207e37a752daf5ef82eb6ff5cebb0c23f5dce13d52ef059b201dd4c"
   pullPolicy: IfNotPresent
 
 # The Docker Hub repository is public, so no registry credentials are required.
@@ -36,6 +37,7 @@ secretEnv:
   existingSecret: devorecruiter-api-back-secrets
   required:
     GROQ_API_KEY: groq-api-key
+    RAG_INTERNAL_SECRET: rag-internal-secret
   optional:
     HF_TOKEN: hf-token
 
@@ -59,6 +61,9 @@ ingress:
         - path: /
           pathType: Prefix
   tls: []
+
+networkPolicy:
+  enabled: true
 
 # Keep the ML service within the capacity of the 4 GiB Azure student VM.
 resources:

@@ -24,16 +24,16 @@ env:
   TZ: "Africa/Tunis"
   N8N_HOST: "n8n.devorecruiter.local"
   N8N_PORT: "5678"
-  N8N_PROTOCOL: "http"
-  N8N_EDITOR_BASE_URL: "http://localhost:5678"
-  N8N_WEBHOOK_URL: "http://n8n.devorecruiter.local/"
+  N8N_PROTOCOL: "https"
+  N8N_EDITOR_BASE_URL: "https://n8n.devorecruiter.local"
+  N8N_WEBHOOK_URL: "https://n8n.devorecruiter.local/"
   N8N_LOG_LEVEL: "info"
-  N8N_SECURE_COOKIE: "false"
+  N8N_SECURE_COOKIE: "true"
   N8N_DIAGNOSTICS_ENABLED: "false"
   N8N_PERSONALIZATION_ENABLED: "false"
   N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
   N8N_UNVERIFIED_PACKAGES_ENABLED: "false"
-  N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
+  N8N_BLOCK_ENV_ACCESS_IN_NODE: "true"
   N8N_RUNNERS_TASK_TIMEOUT: "60"
   N8N_COMPRESSION_NODE_MAX_DECOMPRESSED_SIZE_BYTES: "268435456"
   N8N_COMPRESSION_NODE_MAX_ZIP_ENTRIES: "1000"
@@ -69,7 +69,7 @@ database:
     image:
       repository: cgr.dev/chainguard/postgres
       tag: "latest"
-      digest: ""
+      digest: "sha256:833bd9897f70176303e5a9347bdfb4596272176523b3d205dbad93e4adb62227"
       pullPolicy: IfNotPresent
     backoffLimit: 3
     ttlSecondsAfterFinished: 300
@@ -93,7 +93,10 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
-  tls: []
+  tls:
+    - hosts:
+        - n8n.devorecruiter.local
+      secretName: n8n-tls
 
 # Keep n8n within the available capacity of the 4 GiB VM.
 resources:

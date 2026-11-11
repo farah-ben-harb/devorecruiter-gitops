@@ -8,6 +8,7 @@ updateStrategy:
 image:
   repository: benharbfarah/devorecruiter-api-back
   tag: "ad1afb5ceb27cfb6245d9defab37dbd27c5cad9f"
+  digest: ""
   pullPolicy: IfNotPresent
 
 # Secret used by Kubernetes to pull private Docker Hub images.
@@ -29,7 +30,7 @@ service:
 
 # Non-secret runtime configuration passed through a ConfigMap.
 env:
-  ALLOWED_ORIGINS: "http://devorecruiter.local,http://devorecruiter-frontend"
+  ALLOWED_ORIGINS: "https://devorecruiter.local,https://devorecruiter-frontend"
   CHROMA_PERSIST_DIRECTORY: "/data/chroma"
   EMBEDDING_MODEL: "BAAI/bge-small-en-v1.5"
   GROQ_MODEL: "llama-3.3-70b-versatile"
@@ -40,6 +41,7 @@ secretEnv:
   existingSecret: devorecruiter-api-back-secrets
   required:
     GROQ_API_KEY: groq-api-key
+    RAG_INTERNAL_SECRET: rag-internal-secret
   optional:
     HF_TOKEN: hf-token
 
@@ -71,10 +73,15 @@ ingress:
           pathType: Prefix
   tls: []
 
+networkPolicy:
+  enabled: false
+
 # Match volume ownership to the non-root app user created by the image.
 podSecurityContext:
   fsGroup: 1000
   fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: RuntimeDefault
 
 securityContext:
   allowPrivilegeEscalation: false

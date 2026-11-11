@@ -34,7 +34,7 @@ spec:
       {{- end }}
       containers:
         - name: api-bff
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: {{ include "devorecruiter-api-bff.image" . | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- with .Values.securityContext }}
           # securityContext applies container-level hardening.

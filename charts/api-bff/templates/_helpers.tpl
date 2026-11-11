@@ -53,3 +53,8 @@ These labels must remain stable because Services use them to route traffic to Po
 app.kubernetes.io/name: {{ include "devorecruiter-api-bff.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
+
+{{- define "devorecruiter-api-bff.image" -}}
+{{- printf "%s:%s" .Values.image.repository .Values.image.tag -}}
+{{- with .Values.image.digest -}}@{{ . }}{{- end -}}
+{{- end -}}

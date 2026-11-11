@@ -13,6 +13,7 @@ updateStrategy:
 image:
   repository: benharbfarah/devorecruiter-front
   tag: "88af786531e0e32ee7ea70ad3ceb9a5a6ca18c58"
+  digest: "sha256:6891f0e9c731225bc88440117fd33dcfe0950d76552986369b155d05fe9e8217"
   pullPolicy: IfNotPresent
 
 # The Docker Hub repository is public, so no registry credentials are required.
@@ -38,7 +39,10 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
-  tls: []
+  tls:
+    - hosts:
+        - devorecruiter.local
+      secretName: devorecruiter-tls
 
 # Nginx serves static assets and needs only a small resource allocation.
 resources:
