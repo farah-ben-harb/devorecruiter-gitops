@@ -8,6 +8,7 @@ updateStrategy:
 image:
   repository: benharbfarah/devorecruiter-api-bff
   tag: "b8ad515917c34131239c5b3eac3cf6eb7f64b80c"
+  digest: ""
   pullPolicy: IfNotPresent
 
 # Secret used by Kubernetes to pull private Docker Hub images.
@@ -31,10 +32,9 @@ service:
 env:
   NODE_ENV: "production"
   PORT: "3000"
-  CORS_ORIGIN: "http://devorecruiter.local"
-  FRONTEND_URL: "http://devorecruiter.local"
-  APP_FRONTEND_URL: "http://devorecruiter.local"
-  AUTH_CALLBACK_INCLUDE_ACCESS_TOKEN_QUERY: "true"
+  CORS_ORIGIN: "https://devorecruiter.local"
+  FRONTEND_URL: "https://devorecruiter.local"
+  APP_FRONTEND_URL: "https://devorecruiter.local"
   AUTH_COOKIE_SAMESITE: "lax"
   AUTH_COOKIE_SECURE: "false"
   DATABASE_HOST: "postgres"
@@ -42,7 +42,7 @@ env:
   DATABASE_USER: "devorecruiter"
   DATABASE_NAME: "devorecruiter"
   DATABASE_SYNCHRONIZE: "false"
-  GOOGLE_CALLBACK_URL: "http://devorecruiter.local/auth/google/callback"
+  GOOGLE_CALLBACK_URL: "https://devorecruiter.local/api/auth/google/callback"
   FASTAPI_BASE_URL: "http://devorecruiter-api-back:8000"
   N8N_TIMEOUT_MS: "30000"
   N8N_SCORING_CV_MIN_SCORE: "70"
@@ -63,6 +63,7 @@ secretEnv:
     GITHUB_TOKEN: github-token
     GROQ_API_KEY: groq-api-key
     N8N_WEBHOOK_URL: n8n-webhook-url
+    RAG_INTERNAL_SECRET: rag-internal-secret
   optional:
     DRIVE_FOLDER_CANDIDATES_CVS_BRUTS: drive-folder-candidates-cvs-bruts
     DRIVE_FOLDER_CANDIDATES_CVS_UNIFIES: drive-folder-candidates-cvs-unifies
@@ -106,8 +107,13 @@ ingress:
           pathType: Prefix
   tls: []
 
+networkPolicy:
+  enabled: false
+
 # Pod-level security defaults can be tightened later per cluster policy.
-podSecurityContext: {}
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
 
 securityContext:
   allowPrivilegeEscalation: false

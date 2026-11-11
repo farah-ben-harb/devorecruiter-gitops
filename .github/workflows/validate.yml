@@ -1,0 +1,78 @@
+name: GitOps validation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  helm-validation:
+    name: Helm lint, render and schema validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Set up Go tools
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.x'
+          cache: false
+
+      - name: Install kubeconform
+        run: go install github.com/yannh/kubeconform/cmd/kubeconform@v0.7.0
+
+      - name: Lint and render charts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p rendered
+          charts=(postgres n8n api-back api-bff frontend)
+          for chart in "${charts[@]}"; do
+            helm lint "charts/${chart}"
+          done
+
+          helm template postgres charts/postgres \
+            -f environments/dev/postgres-values.yaml > rendered/postgres.yaml
+          helm template n8n charts/n8n \
+            -f environments/dev/n8n-values.yaml > rendered/n8n.yaml
+          helm template api-back charts/api-back \
+            -f environments/dev/api-back-values.yaml > rendered/api-back.yaml
+          helm template api-bff charts/api-bff \
+            -f environments/dev/api-bff-values.yaml > rendered/api-bff.yaml
+          helm template frontend charts/frontend \
+            -f environments/dev/frontend-values.yaml > rendered/frontend.yaml
+
+      - name: Validate rendered manifests
+        run: |
+          kubeconform -strict -ignore-missing-schemas -summary rendered/*.yaml
+
+  secret-scan:
+    name: Gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.x'
+          cache: false
+
+      - name: Install Gitleaks
+        run: go install github.com/zricethezav/gitleaks/v8@v8.30.0
+
+      - name: Scan repository and history
+        run: |
+          gitleaks detect --source . --no-banner --redact
+          gitleaks git --log-opts="${{ github.event_name == 'pull_request' && format('{0}..{1}', github.event.pull_request.base.sha, github.sha) || 'HEAD~1..HEAD' }}" --no-banner --redact

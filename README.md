@@ -49,6 +49,41 @@ This repository must not contain:
 3. This repository is updated with the new tag or release reference.
 4. Argo CD reconciles the cluster state to match Git.
 
+For the current development environment, the intended rollout order is:
+
+1. PostgreSQL and its external password Secret.
+2. n8n and its encryption/database Secrets.
+3. FastAPI and its `GROQ_API_KEY`, `HF_TOKEN` (optional), and `RAG_INTERNAL_SECRET` values.
+4. BFF and its application credentials plus the same `RAG_INTERNAL_SECRET` value.
+5. Frontend and the externally managed TLS Secret.
+
+The BFF and FastAPI Secrets must contain the same inter-service HMAC value under
+`rag-internal-secret`. The value is never committed here. OAuth must use the
+HTTPS frontend hostname and the callback path `/api/auth/google/callback`; the
+legacy access-token query flag is intentionally absent.
+
+The application and n8n ingresses reference externally provisioned TLS Secrets
+(`devorecruiter-tls`, `devorecruiter-api-tls`, and `n8n-tls`). This repository does
+not create certificates or cloud resources.
+
+## Backup and Rollback
+
+Before changing PostgreSQL schemas or application image digests:
+
+1. Create and verify a PostgreSQL logical backup with `pg_dump` from a trusted
+   administrative environment.
+2. Record the current Helm values, image digests, and Argo CD sync revision.
+3. Back up the Chroma PVC using the cluster storage provider, or stop writes and
+   copy the persistent directory to protected storage when snapshots are not
+   available.
+4. Verify the Chroma document count and reopen a copy before rollout.
+
+Rollback means reverting the GitOps image digest and Helm values, then restoring
+the database or Chroma data only when the application contract requires it. A
+container rollback must not be treated as a database rollback. The procedures
+are preparation guidance only; no backup, restore, PVC snapshot, or cluster
+operation is executed by this repository validation.
+
 ## Branching and Commits
 
 - Use branches such as `feat/<area>`, `fix/<area>`, `docs/<area>`, or `gitops/<area>`
@@ -102,3 +137,11 @@ Phase 5 is repository and Helm basics only.
 No Kubernetes deployment is performed in this phase.
 No Azure resource is created in this phase.
 No Argo CD installation is performed in this phase.
+
+## Validation
+
+Pull requests run Helm lint, render all five charts with the development values,
+validate the rendered Kubernetes resources with kubeconform, and scan the Git
+tree and history with Gitleaks. These checks are static validations only; they
+do not prove that a cluster, ingress controller, external Secrets provider, or
+OAuth provider is configured successfully.

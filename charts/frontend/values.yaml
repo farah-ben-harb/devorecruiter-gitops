@@ -8,6 +8,7 @@ updateStrategy:
 image:
   repository: benharbfarah/devorecruiter-front
   tag: "ad1afb5ceb27cfb6245d9defab37dbd27c5cad9f"
+  digest: ""
   pullPolicy: IfNotPresent
 
 # Secret used by Kubernetes to pull private Docker Hub images.
@@ -52,3 +53,16 @@ ingress:
 
 # Resource requests and limits are intentionally empty until cluster sizing is defined.
 resources: {}
+
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  runAsNonRoot: true
+  runAsUser: 101
+  runAsGroup: 101

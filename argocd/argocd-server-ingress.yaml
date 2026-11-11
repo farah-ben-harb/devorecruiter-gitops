@@ -8,21 +8,16 @@ metadata:
   labels:
     app.kubernetes.io/name: argocd-server
     app.kubernetes.io/part-of: argocd
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
 spec:
   # Traefik is the default ingress controller installed with K3s.
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - argocd.devorecruiter.local
+      secretName: argocd-tls
   rules:
-    # Hostless rule lets the Argo CD UI open at the VM public IP.
-    # Host-specific app and n8n ingress rules continue to serve their own names.
-    - http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: argocd-server
-                port:
-                  number: 80
     - host: argocd.devorecruiter.local
       http:
         paths:
