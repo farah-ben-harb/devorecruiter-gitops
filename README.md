@@ -66,6 +66,24 @@ The application and n8n ingresses reference externally provisioned TLS Secrets
 (`devorecruiter-tls`, `devorecruiter-api-tls`, and `n8n-tls`). This repository does
 not create certificates or cloud resources.
 
+## Backup and Rollback
+
+Before changing PostgreSQL schemas or application image digests:
+
+1. Create and verify a PostgreSQL logical backup with `pg_dump` from a trusted
+   administrative environment.
+2. Record the current Helm values, image digests, and Argo CD sync revision.
+3. Back up the Chroma PVC using the cluster storage provider, or stop writes and
+   copy the persistent directory to protected storage when snapshots are not
+   available.
+4. Verify the Chroma document count and reopen a copy before rollout.
+
+Rollback means reverting the GitOps image digest and Helm values, then restoring
+the database or Chroma data only when the application contract requires it. A
+container rollback must not be treated as a database rollback. The procedures
+are preparation guidance only; no backup, restore, PVC snapshot, or cluster
+operation is executed by this repository validation.
+
 ## Branching and Commits
 
 - Use branches such as `feat/<area>`, `fix/<area>`, `docs/<area>`, or `gitops/<area>`
